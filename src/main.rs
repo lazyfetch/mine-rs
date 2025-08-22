@@ -109,7 +109,7 @@ fn main() -> io::Result<()> {
             let packet_length = match read_varint(&mut cursor) {
                 Ok(len) => len,
                 Err(_) => {
-                    println!("не хватило данных на длину, retry");
+                    // TEST println!("не хватило данных на длину, retry");
                     // этой штукой мы берем и выходим из 'parsing_loop цикла,
                     // в данном контексте метка не обязательна, но читабельность+ 
                     break 'parsing_loop
@@ -125,7 +125,7 @@ fn main() -> io::Result<()> {
             // , а длина буфера всего-лишь 5, значит данных не хватает, и такое буедт постоянно, ибо TCP
             // гаранитурет доставку и порядок, а не доставку всего сообщения целиком, разница есть
             if end_of_packet_pos as u64 > buffer.len() as u64 {
-                println!("не хватило данных на пакет, retry");
+                // TEST println!("не хватило данных на пакет, retry");
                 // возвращаем курсор на изначальную позицию, откуда начали
                 // ОБЯЗАТЕЛЬНО делаем это, ведь до этого мы читали varint длину пакета (которая первой идет)
                 // а значит смещали оффсет, если мы этого не сделаем то попытаемся очистить буфер на то, чего не читали, ВЫЙДЕТ ПЛОХО
@@ -189,9 +189,23 @@ fn main() -> io::Result<()> {
                 // в нем payload это чисто порог компрессии, условно 256 байт, запоминаем и записываем в нашу мутабельную переменную
                  compression_threshold = read_varint(&mut data_cursor)?; 
                  println!("!!!!!!!!!!!!!!!!! СЖАТИЕ УСТАНОВЛЕНО! Порог: {} !!!!!!!!!!!!!!!", compression_threshold);
-            } else if packet_id == 0x24 {
+            } else if packet_id == 0x04 {
                 // Keep alive, ТУДУ, НАУЧИТСЯ НА НЕГО ОТВЕЧАТЬ ТЕМ ЖЕ ПАЙЛОАДОМ, ЭТО НЕ СЛОЖНО
                 println!("!!!!!!!!!!!!!!!!! ПОЙМАЛИ Keep Alive !!!!!!!!!!!!!!!");
+
+                let mut keep_alive_packet: Vec<u8> = Vec::new();
+                let keep_alive_len = data_cursor.get_ref().len() as u64 - cursor.position() + 0x04;
+                let mut payload: Vec<u8> = Vec::new();
+                data_cursor.read_to_end(&mut payload).unwrap(); 
+                let k = keep_alive_len as i32;
+                keep_alive_packet.extend_from_slice(&k.to_varint()[..]);
+                keep_alive_packet.extend_from_slice(&0x04.to_varint()[..]);
+                keep_alive_packet.extend_from_slice(&payload);
+                match stream.write_all(&keep_alive_packet) {
+                    Ok(_) => println!("я ответил? я победил? хзхз"),
+                    Err(e) => println!("ошибка( {}", e),    
+                };
+
             } else {
                 // не ебем что за пакет, не умеем еще обрабатывать
                 println!("--> Скипаю пакет 0x{:02X}", packet_id);
