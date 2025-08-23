@@ -1,0 +1,2 @@
+pub const PROTOCOL_VERSION_1_21_8: i32 = 772;
+pub const PROTOCOL_VERSION_1_20_1: i32 = 763;
