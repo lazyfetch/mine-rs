@@ -2,32 +2,9 @@ use std::io::{self, Cursor, Read, Result, Write};
 use std::net::TcpStream;
 use flate2::read::ZlibDecoder; // Импортируем нашего "переводчика с китайского"
 
+mod utils;
+
 // --- Трейт для удобного кодирования в VarInt ---
-trait ToVarInt {
-    fn to_varint(&self) -> Vec<u8>;
-}
-
-impl ToVarInt for i32 {
-    fn to_varint(&self) -> Vec<u8> {
-        let mut bytes = Vec::new();
-        let mut value = *self as u32; // Работаем с unsigned для сдвигов
-
-        loop {
-            let mut byte = (value & 0b0111_1111) as u8;
-            value >>= 7;
-
-            if value != 0 {
-                byte |= 0b1000_0000;
-            }
-            bytes.push(byte);
-
-            if value == 0 {
-                break;
-            }
-        }
-        bytes
-    }
-}
 
 // --- Функция для чтения VarInt из любого источника ---
 fn read_varint<R: Read>(stream: &mut R) -> Result<i32> {
@@ -198,8 +175,8 @@ fn main() -> io::Result<()> {
                 let mut payload: Vec<u8> = Vec::new();
                 data_cursor.read_to_end(&mut payload).unwrap(); 
                 let k = keep_alive_len as i32;
-                keep_alive_packet.extend_from_slice(&k.to_varint()[..]);
-                keep_alive_packet.extend_from_slice(&0x04.to_varint()[..]);
+                //keep_alive_packet.extend_from_slice(&k.to_varint()[..]);
+                //keep_alive_packet.extend_from_slice(&0x04.to_varint()[..]);
                 keep_alive_packet.extend_from_slice(&payload);
                 match stream.write_all(&keep_alive_packet) {
                     Ok(_) => println!("я ответил? я победил? хзхз"),
