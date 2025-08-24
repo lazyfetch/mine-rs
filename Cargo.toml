@@ -1,0 +1,12 @@
+[package]
+name = "mine-rs"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+members = [
+    "crates/mc-protocol",
+    "crates/mc-client",
+]
+
+[dependencies]
