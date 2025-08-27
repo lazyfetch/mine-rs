@@ -1,4 +1,7 @@
-use std::net::TcpStream;
+use tokio::net::TcpStream; 
+use tokio::io;
+
+use crate::State;
 
 use super::config::*;
 
@@ -8,7 +11,8 @@ pub struct ClientBuilder {
     host: String,
     port: u16,
     username: String,
-    compression: i32
+    compression: i32,
+    state: State,
 }
 
 impl ClientBuilder {
@@ -19,6 +23,7 @@ impl ClientBuilder {
             port:        DEFAULT_SERVER_PORT,
             username:    DEFAULT_USERNAME.to_string(),
             compression: DEFAULT_COMPRESSION_THRESHOLD,
+            state:       State::Login,
         }
     }
 
@@ -42,12 +47,14 @@ impl ClientBuilder {
         self
     }
 
-    pub fn connect(self) -> Client {
-        let stream = TcpStream::connect(format!("{}:{}", self.host, self.port)).unwrap(); // temp  
+    pub async fn connect(self) -> io::Result<Client> {
+        let stream = TcpStream::connect(format!("{}:{}", self.host, self.port)).await?; // temp  
         
-        Client {
+        Ok(Client {
+            username: self.username,
+            state: self.state,
             tcp_stream: stream,            
-        }
+        })
 
     } 
 }

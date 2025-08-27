@@ -10,3 +10,4 @@ members = [
 ]
 
 [dependencies]
+tokio = "1.47.1"
