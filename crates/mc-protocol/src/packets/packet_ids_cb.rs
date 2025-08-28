@@ -38,9 +38,27 @@ pub enum ConfigureClientboundPacketId {
 #[derive(Debug, Eq, PartialEq, Hash, /*TryFromPrimitive*/)]
 #[repr(i32)]
 pub enum PlayClientboundPacketId {
-    SpawnEntity = 0x00,
-    SpawnPlayer = 0x04,
-    EntityAnimation = 0x06,
-    KeepAlive = 0x21,
-    ChatMessage = 0x0F,
+    BundleDelimiter = 0x00,
+    SpawnEntity = 0x01,
+    EntityAnimation = 0x02,
+    AwardStatistics = 0x03,
+    AcknowledgeBlockChange = 0x04,
+    SetBlockDestroyStage = 0x05,
+    BlockEntityData = 0x06,
+    BlockAction = 0x07,
+    BlockUpdate = 0x08,
+    BossBar = 0x09,
+    ChangeDifficulty = 0x0A,
+    ChunkBatchFinished = 0x0B,
+    ChunkBatchStart = 0x0C,
+    ChunkBiomes = 0x0D,
+    Commands = 0x10,
+    CloseContainer = 0x11,
+    SetContainerContent = 0x12,
+    SetContainerProperty = 0x13,
+    SetContainerSlot = 0x14,
+    CookieRequest = 0x015,
+    // ...
+    KeepAlive = 0x26,
+    
 }
