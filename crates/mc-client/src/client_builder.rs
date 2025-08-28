@@ -55,6 +55,5 @@ impl ClientBuilder {
             state: self.state,
             tcp_stream: stream,            
         })
-
     } 
 }

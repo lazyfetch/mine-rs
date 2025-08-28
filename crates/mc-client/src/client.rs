@@ -2,9 +2,9 @@ use super::ClientBuilder;
 use super::State;
 
 use tokio::net::TcpStream;
-use std::collections::HashMap;
+// use std::collections::HashMap;
 
-// type PacketHandler = Box<dyn FnMut(&mut Client, &[u8])>;
+type PacketHandler = Box<dyn FnMut(&mut Client, &[u8])>;
 
 pub struct Client {
     pub username: String,
@@ -18,5 +18,15 @@ impl Client {
         ClientBuilder::new()
     }
 
-    // login???
+    pub async fn listen(&mut self) {
+        // loop, parse package id -> match -> ...
+    }
+
+    pub fn login() {
+        // todo
+    }
+
+    pub fn login_with_tls() {
+        // todo
+    }
 }
