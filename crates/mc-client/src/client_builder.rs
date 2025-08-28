@@ -1,11 +1,17 @@
 use tokio::net::TcpStream; 
 use tokio::io;
 
+use crate::EntityRegistry;
 use crate::State;
 
 use super::config::*;
 
 use super::Client;
+
+pub trait Registry {
+    fn entities(&mut self) -> &mut EntityRegistry;
+    // fn world(&mut self) -> &mut WorldHandlerRegistry;
+}
 
 pub struct ClientBuilder {
     host: String,
@@ -56,4 +62,12 @@ impl ClientBuilder {
             tcp_stream: stream,            
         })
     } 
+}
+
+impl Registry for ClientBuilder {
+    pub fn entities(&mut self) -> &mut EntityRegistry {
+        // you sure we need to use ClientBuilder for this guy?
+        // upd im really sure, because clientbuilder.entites.on_move().on_walk().on_wathever, and after this 
+        // we can just move data from ClientBuilder to Clientfull same structure, and chill
+    }  
 }

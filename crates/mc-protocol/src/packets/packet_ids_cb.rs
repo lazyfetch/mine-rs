@@ -60,5 +60,7 @@ pub enum PlayClientboundPacketId {
     CookieRequest = 0x015,
     // ...
     KeepAlive = 0x26,
-    
+    UpdateEntityPosition = 0x2E,
+    UpdateEntityPositionAndRotation = 0x2F,
+    UpdateEntityRotation = 0x30,
 }
