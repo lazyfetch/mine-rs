@@ -3,6 +3,7 @@ pub mod client;
 pub mod state;
 pub mod config;
 pub mod registries;
+pub mod packets;
 
 pub use registries::registries::Registries;
 pub use registries::entity_handler_registry::EntityHandlerRegistry;

@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::{any::TypeId, collections::HashMap};
 
-use crate::client_builder::MasterHandlers;
+use crate::{client_builder::MasterHandlers, EntityStorage};
 pub struct EntityHandlerRegistry<'a> {
     pub master_handlers: &'a mut MasterHandlers,
 }
