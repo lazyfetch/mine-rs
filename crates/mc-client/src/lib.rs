@@ -9,3 +9,4 @@ pub use registries::entity_handler_registry::EntityHandlerRegistry;
 pub use client::Client;
 pub use client_builder::ClientBuilder;
 pub use state::State;
+pub use registries::entity_storage::EntityStorage;
