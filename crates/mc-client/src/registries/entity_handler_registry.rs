@@ -1,5 +1,7 @@
-use crate::{client_builder::MasterHandlers, EntityStorage};
-use crate::packets::clientbound::{Parse, ProvideTargetKey, EntityMoveData, ApplyEvent};
+use crate::packets::types::{Parse, ProvideTargetKey, ApplyEvent};
+use crate::packets::clientbound::EntityMoveData;
+use crate::types::MasterHandlers;
+use crate::EntityStorage;
 
 use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId::UpdateEntityPosition;
 use std::any::TypeId;

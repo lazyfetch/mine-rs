@@ -1,17 +1,14 @@
 use tokio::net::TcpStream; 
 use tokio::io;
-use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId;
 use std::collections::HashMap;
-use std::any::{Any, TypeId};
+use std::any::{TypeId};
 
 use crate::registries::entity_handler_registry::EntityHandlerRegistry;
+use crate::types::{MasterHandlers, RegistriesMap};
 use crate::{EntityStorage, State};
 
 use super::config::*;
 use super::Client;
-
-pub type RegistriesMap = HashMap<TypeId, Box<dyn Any + Send + Sync>>;
-pub type MasterHandlers = HashMap<PlayClientboundPacketId, Box<dyn FnMut(&mut RegistriesMap, &[u8]) + 'static>>; // temp, rewrite this dude
 
 pub trait Registry {
     fn entities(&mut self) -> EntityHandlerRegistry;
