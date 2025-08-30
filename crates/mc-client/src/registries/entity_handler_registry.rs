@@ -1,6 +1,18 @@
 use std::{any::TypeId, collections::HashMap};
 
 use crate::{client_builder::MasterHandlers, EntityStorage};
+
+// todo, dont forget to move this macro rules in more good place
+macro_rules! create_event_handler {
+    (
+        $fn_name:ident,
+        $packet_id:expr,
+        $($)
+    ) => {
+
+    };
+}
+
 pub struct EntityHandlerRegistry<'a> {
     pub master_handlers: &'a mut MasterHandlers,
 }
