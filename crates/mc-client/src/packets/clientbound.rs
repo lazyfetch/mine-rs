@@ -1,32 +1,54 @@
+use mc_protocol::entity::Entity;
+
 pub trait ApplyEvent<E> {
-    fn apply(&mut self, event: E);
+    fn apply(&mut self, event: &mut E);
+}
+
+pub trait Parse: Sized {
+    fn parse(reader: &mut impl std::io::Read) -> Result<Self, std::io::Error>;
+}
+
+pub trait ProvideTargetKey {
+    type Key;
+
+    fn key(&self) -> Self::Key;
 }
 
 struct EntityMoveData {
     entity_id: i32, // actually varint
-    delta_x: i8,
-    delta_y: i8,
-    delta_z: i8, //fr i dont know if type is correct, nvrmnd
+    delta_x: i16,
+    delta_y: i16,
+    delta_z: i16, //fr i dont know if type is correct, nvrmnd
 }
 
 struct EntityRotationData {
 
 }
 
-impl EntityMoveData {
-    fn on_move() -> EntityMoveData  {
-        EntityMoveData {  }
+impl Parse for EntityMoveData {
+    fn parse(reader: &mut impl std::io::Read) -> Result<Self, std::io::Error> {
+        // lets parse it!
     }
 }
 
-impl ApplyEvent<E> for EntityMoveData {
-    fn apply(&mut self, event: E) {
-        
+impl ApplyEvent<Entity> for EntityMoveData {
+    fn apply(&mut self, event: &mut Entity) {
+        event.x += self.delta_x;
+        event.y += self.delta_y;
+        event.z += self.delta_z;
     }
 }
 
-impl EntityRotationData {
-    fn on_rotation() -> EntityRotationData {
-        EntityRotationData {  }
+impl ProvideTargetKey for EntityMoveData {
+    type Key = i32; // Указываем конкретный тип ключа
+
+    fn key(&self) -> Self::Key {
+        self.entity_id // Возвращаем его
+    }
+}
+
+impl Parse for EntityRotationData {
+    fn parse(reader: &mut impl std::io::Read) -> Result<Self, std::io::Error> {
+
     }
 }

@@ -4,7 +4,6 @@ use tokio::io;
 use std::collections::HashMap;
 use std::any::{Any, TypeId};
 
-use crate::registries::registries::Registries;
 use crate::registries::entity_handler_registry::EntityHandlerRegistry;
 use crate::{EntityStorage, State};
 
@@ -12,7 +11,7 @@ use super::config::*;
 use super::Client;
 
 pub type RegistriesMap = HashMap<TypeId, Box<dyn Any + Send + Sync>>;
-pub type MasterHandlers = HashMap<i32, Box<dyn FnMut(&mut Registries, &[u8]) + 'static>>;
+pub type MasterHandlers = HashMap<i32, Box<dyn FnMut(&mut RegistriesMap, &[u8]) + 'static>>; // temp, rewrite this dude
 
 pub trait Registry {
     fn entities(&mut self) -> EntityHandlerRegistry;
