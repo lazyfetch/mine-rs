@@ -5,7 +5,6 @@ pub mod config;
 pub mod registries;
 pub mod packets;
 
-pub use registries::registries::Registries;
 pub use registries::entity_handler_registry::EntityHandlerRegistry;
 pub use client::Client;
 pub use client_builder::ClientBuilder;

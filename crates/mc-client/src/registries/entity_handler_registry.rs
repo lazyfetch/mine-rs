@@ -1,6 +1,9 @@
 use crate::{client_builder::MasterHandlers, EntityStorage};
+use crate::packets::clientbound::{Parse, ProvideTargetKey, EntityMoveData, ApplyEvent};
 
-// todo, dont forget to move this macro rules in more good place
+use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId::UpdateEntityPosition;
+use std::any::TypeId;
+
 macro_rules! create_event_handler {
     (
         $fn_name:ident,
@@ -10,30 +13,31 @@ macro_rules! create_event_handler {
         $target_type:ty,
         $get_target_fn:ident,
     ) => {
-        pub fn $fn_name<F>(&mut self, user_callback: F) -> &mut Self 
+        pub fn $fn_name<F>(&mut self, mut user_callback: F) -> &mut Self 
         where
-            $packet_data_type: Parse + ProvideTargetKey,
-            F FnMut(&mut $target_type) + 'static {
-                self.master_handlers.insert($packet_id, Box::new(move |registries, raw_bytes| {
+            $packet_data_type: Parse + ProvideTargetKey + ApplyEvent<$target_type>,
+            F: FnMut(&mut $target_type) + 'static
+        {
+            self.master_handlers.insert($packet_id, Box::new(move |registries, raw_bytes| {
                     
                     // parse data
-                    let mut reader = std::io::Cursor::new(raw_bytes);
-                    let packet_data = %packet_data_type::parse(&mut reader).unwrap(); // temp shit
+                let mut reader = std::io::Cursor::new(raw_bytes);
+                let mut packet_data = <$packet_data_type>::parse(&mut reader).unwrap(); // temp shit
 
-                    // find registry
-                    if let Some(registry) = registries.get_mut(&TypeId::of::<$registry_type>())
-                        .and_then(|any| any.downcast_mut::<$registry_type>()) {
-                            if let Some(target) = registry.$get_target_fn(packet_data.key()) {
+                // find registry
+                if let Some(registry) = registries.get_mut(&TypeId::of::<$registry_type>())
+                    .and_then(|any| any.downcast_mut::<$registry_type>()) {
+                        if let Some(mut target) = registry.$get_target_fn(packet_data.key()) {
                                 
-                                // apply new info
-                                packet_data.ApplyEvent(&mut target)
+                            // apply new info
+                            packet_data.apply(&mut target);
 
-                                // user callback
-                                user_callback(&mut target)
-                            }
+                            // user callback
+                            user_callback(&mut target)
                         }
-
+                    }
             }));
+            self
         }
     };
 }
@@ -44,31 +48,19 @@ pub struct EntityHandlerRegistry<'a> {
 
 impl<'a> EntityHandlerRegistry<'a> {
 
+    create_event_handler!(
+        on_move,
+        UpdateEntityPosition,
+        EntityStorage,
+        EntityMoveData,
+        mc_protocol::entity::Entity,
+        get_entity_mut,
+    );
+
     pub fn new(master_handlers: &'a mut MasterHandlers) -> Self {
         EntityHandlerRegistry {
             master_handlers,
         }
-    }
-
-    pub fn on_move<F>(&mut self, user_callback: F) -> &mut Self
-    where
-        F: FnMut(&mut Entity, MoveData) + 'static, {
-        self.master_handlers.insert(MOVE_PACKET_ID, Box::new(move |registries, raw_bytes| {
-
-            let move_data = parse_move_packet(raw_bytes);
-
-            if let Some(storage) = registries.get_mut(&TypeId::of::<EntityStorage>())
-                .and_then(|any| any.downcast_mut::<EntityStorage>()) {
-                if let Some(entity) = storage.get_entity_mut(move_data.entity_id) {
-                    
-                    // here's 
-
-                    user_callback(entity, move_data);
-                }
-            }
-        }));
-
-        self
     }
 
     pub fn on_remove(&mut self) -> &mut Self {

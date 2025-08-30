@@ -1,6 +1,6 @@
 use tokio::net::TcpStream; 
 use tokio::io;
-
+use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId;
 use std::collections::HashMap;
 use std::any::{Any, TypeId};
 
@@ -11,11 +11,10 @@ use super::config::*;
 use super::Client;
 
 pub type RegistriesMap = HashMap<TypeId, Box<dyn Any + Send + Sync>>;
-pub type MasterHandlers = HashMap<i32, Box<dyn FnMut(&mut RegistriesMap, &[u8]) + 'static>>; // temp, rewrite this dude
+pub type MasterHandlers = HashMap<PlayClientboundPacketId, Box<dyn FnMut(&mut RegistriesMap, &[u8]) + 'static>>; // temp, rewrite this dude
 
 pub trait Registry {
     fn entities(&mut self) -> EntityHandlerRegistry;
-    // fn world(&mut self) -> &mut WorldHandlerRegistry;
 }
 
 pub struct ClientBuilder {

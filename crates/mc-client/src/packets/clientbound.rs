@@ -14,14 +14,14 @@ pub trait ProvideTargetKey {
     fn key(&self) -> Self::Key;
 }
 
-struct EntityMoveData {
+pub struct EntityMoveData {
     entity_id: i32, // actually varint
     delta_x: i16,
     delta_y: i16,
     delta_z: i16, //fr i dont know if type is correct, nvrmnd
 }
 
-struct EntityRotationData {
+pub struct EntityRotationData {
 
 }
 
