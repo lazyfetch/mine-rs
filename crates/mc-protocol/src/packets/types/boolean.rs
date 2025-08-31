@@ -4,10 +4,10 @@ use crate::types::types::{Boolean, Decode, DecodeError, Encode};
 
 impl Decode for Boolean {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
-        let mut read_byte = [0u8; 1];
-        reader.read_exact(&mut read_byte)?; // `?` здесь по-прежнему работает как надо!
+        let mut buffer = [0u8; 1];
+        reader.read_exact(&mut buffer)?; // `?` здесь по-прежнему работает как надо!
 
-        match read_byte[0] {
+        match buffer[0] {
             0x01 => Ok(true),
             0x00 => Ok(false),
             // Любое другое значение...

@@ -1,4 +1,4 @@
-use crate::types::types::{Angle, Double, Int, Short, UUID};
+use crate::types::types::{Angle, Boolean, Double, Int, Short, UUID};
 
 // temp description of struct
 pub struct Entity {
@@ -19,4 +19,6 @@ pub struct Entity {
     pub velocity_x: Short,
     pub velocity_y: Short,
     pub velocity_z: Short,
+
+    pub on_ground: Boolean, // dont sure its need here, todo
 }

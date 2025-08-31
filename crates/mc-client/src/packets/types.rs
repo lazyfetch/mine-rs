@@ -1,9 +1,13 @@
+use std::io::Read;
+
+use mc_protocol::types::types::DecodeError;
+
 pub trait ApplyEvent<E> {
     fn apply(&mut self, event: &mut E);
 }
 
 pub trait Parse: Sized {
-    fn parse(reader: &mut impl std::io::Read) -> Result<Self, std::io::Error>;
+    fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError>;
 }
 
 pub trait ProvideTargetKey {

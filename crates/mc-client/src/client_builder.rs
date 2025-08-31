@@ -64,7 +64,8 @@ impl ClientBuilder {
         Ok(Client {
             username: self.username,
             state: self.state,
-            tcp_stream: stream,            
+            tcp_stream: stream,
+            registries: self.registries,
         })
     } 
 }

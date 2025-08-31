@@ -4,3 +4,5 @@ pub mod varlong;
 pub mod string;
 pub mod boolean;
 pub mod prefixed_array;
+pub mod short;
+pub mod angle;
