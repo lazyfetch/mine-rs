@@ -1,52 +1,43 @@
 use std::io::Read;
 
-use crate::types::types::VARINT_LENGTH;
+use crate::types::types::{Decode, DecodeError, Encode, EncodeError, Int, VarInt, VARINT_LENGTH};
 
-trait ToVarInt {
-    fn to_varint(&self) -> Vec<u8>;
+impl Decode for VarInt {
+    fn decode<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
+        let mut num_read = 0;
+        let mut result: Int = 0;
+        let mut read_byte = [0u8; 1];
+        loop {
+            reader.read_exact(&mut read_byte)?;
+            let byte = read_byte[0];
+            let value = (byte & 0b0111_1111) as Int;
+            result |= value << (7 * num_read);
+            num_read += 1;
+            if num_read > VARINT_LENGTH {
+                return Err(DecodeError::InvalidValue("VarInt too long".to_string()));
+            }
+            if (byte & 0b1000_0000) == 0 {
+                break;
+            }
+        }
+        Ok(VarInt(result))
+        }
 }
 
-impl ToVarInt for i32 {
-
-    fn to_varint(&self) -> Vec<u8> {
-
-        let mut bytes = Vec::new();
-        let mut value = *self as u32;
+impl Encode for VarInt {
+    fn encode(&self, writer: &mut Vec<u8>) -> Result<(), EncodeError> {
+        let mut value = self.0 as u32;
         loop {
             let mut byte = (value & 0b0111_1111) as u8;
             value >>= 7;
             if value != 0 {
                 byte |= 0b1000_0000;
             }
-            bytes.push(byte);
+            writer.push(byte);
             if value == 0 {
                 break;
             }
         }
-        bytes
+        Ok(())
     }
-}
-
-fn read_varint<R: Read>(stream: &mut R) -> Result<i32, std::io::Error> {
-    
-    let mut num_read = 0;
-    let mut result = 0;
-    let mut read_byte = [0u8; 1];
-    loop {
-        stream.read_exact(&mut read_byte)?;
-        let byte = read_byte[0];
-        let value = (byte & 0b0111_1111) as i32;
-        result |= value << (7 * num_read);
-        num_read += 1;
-        if num_read > VARINT_LENGTH {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::InvalidData,
-                "VarInt is too big",
-            ));
-        }
-        if (byte & 0b1000_0000) == 0 {
-            break;
-        }
-    }
-    Ok(result)
 }
