@@ -18,13 +18,3 @@ pub struct Entity {
     pub velocity_y: i8,
     pub velocity_z: i8,
 }
-
-impl Entity {
-    fn spawn() {
-        
-    }
-
-    fn remove() {
-
-    }
-}
