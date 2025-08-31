@@ -52,6 +52,14 @@ impl ApplyEvent<Entity> for EntityRotationData {
     }
 }
 
+impl ProvideTargetKey for EntityRotationData {
+    type Key = i32; // temp maybe
+
+    fn key(&self) -> Self::Key {
+        self.id.0
+    }
+}
+
 impl Parse for EntityRotationData {
     fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
         Ok(EntityRotationData {
