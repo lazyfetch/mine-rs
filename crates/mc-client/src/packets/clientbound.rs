@@ -1,12 +1,12 @@
-use mc_protocol::entity::Entity;
+use mc_protocol::{entity::Entity, types::types::{Int, Short}};
 
 use crate::packets::types::{ApplyEvent, Parse, ProvideTargetKey};
 
 pub struct EntityMoveData {
-    entity_id: i32, // actually varint
-    delta_x: i16,
-    delta_y: i16,
-    delta_z: i16, //fr i dont know if type is correct, nvrmnd
+    id: Int, // actually varint
+    delta_x: Short,
+    delta_y: Short,
+    delta_z: Short, //fr i dont know if type is correct, nvrmnd
 }
 
 pub struct EntityRotationData {
@@ -31,7 +31,7 @@ impl ProvideTargetKey for EntityMoveData {
     type Key = i32; // Указываем конкретный тип ключа
 
     fn key(&self) -> Self::Key {
-        self.entity_id // Возвращаем его
+        self.id // Возвращаем его
     }
 }
 

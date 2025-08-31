@@ -1,20 +1,22 @@
+use crate::types::types::{Angle, Double, Int, Short, UUID};
+
 // temp description of struct
 pub struct Entity {
-    pub entity_id: i32,
-    pub entity_uuid: i32, // uuid data type, todo.
-    pub entity_type: i32,
+    pub id: Int,
+    pub uuid: UUID, 
+    pub r#type: Int,
 
-    pub x: i16,
-    pub y: i16,
-    pub z: i16,
+    pub x: Double,
+    pub y: Double,
+    pub z: Double,
 
-    pub pitch: i32, // angle data type, todo.
-    pub yaw: i32, // also
-    pub head_yaw: i32, // also
+    pub pitch: Angle,
+    pub yaw: Angle,
+    pub head_yaw: Angle,
 
-    pub data: i32,
+    pub data: Int,
     
-    pub velocity_x: i8,
-    pub velocity_y: i8,
-    pub velocity_z: i8,
+    pub velocity_x: Short,
+    pub velocity_y: Short,
+    pub velocity_z: Short,
 }
