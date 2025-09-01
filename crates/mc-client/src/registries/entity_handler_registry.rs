@@ -6,7 +6,7 @@ use crate::EntityStorage;
 use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId::UpdateEntityPosition;
 use std::any::TypeId;
 
-macro_rules! create_event_handler {
+macro_rules! handle_apply_event {
     (
         $fn_name:ident,
         $packet_id:expr,
@@ -50,7 +50,7 @@ pub struct EntityHandlerRegistry<'a> {
 
 impl<'a> EntityHandlerRegistry<'a> {
 
-    create_event_handler!(
+    handle_apply_event!(
         on_move,
         UpdateEntityPosition,
         EntityStorage,

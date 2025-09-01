@@ -1,18 +1,15 @@
+use mc_protocol::player::Player;
 use tokio::net::TcpStream; 
 use tokio::io;
 use std::collections::HashMap;
 use std::any::{TypeId};
 
 use crate::registries::entity_handler_registry::EntityHandlerRegistry;
-use crate::types::{MasterHandlers, RegistriesMap};
-use crate::{EntityStorage, State};
+use crate::types::{MasterHandlers, RegistriesMap, Registry};
+use crate::{EntityStorage, PlayerHandlerRegistry, State};
 
 use super::config::*;
 use super::Client;
-
-pub trait Registry {
-    fn entities(&mut self) -> EntityHandlerRegistry;
-}
 
 pub struct ClientBuilder {
     host: String,
@@ -77,5 +74,14 @@ impl Registry for ClientBuilder {
             .or_insert_with(|| Box::new(EntityStorage::default()));
 
         EntityHandlerRegistry::new(&mut self.master_handlers)
-    }  
+    }
+
+    fn player(&mut self) -> PlayerHandlerRegistry {
+        // im not sure its right, temp
+        self.registries
+            .entry(TypeId::of::<Player>())
+            .or_insert_with(|| Box::new(Player::default()));
+
+        PlayerHandlerRegistry::new(&mut self.master_handlers)
+    }
 }
