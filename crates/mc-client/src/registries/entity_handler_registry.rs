@@ -6,6 +6,9 @@ use crate::EntityStorage;
 use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId::UpdateEntityPosition;
 use std::any::TypeId;
 
+// apply? remove? spawn, with_reply (like keep-alive, batch chunks)?...
+// its literally HTTP with GET POST DELETE UPDATE LOOL, nvrmd, maybe i need create another macro rules
+// and put it into ./types.rs, think about it man
 macro_rules! handle_apply_event {
     (
         $fn_name:ident,

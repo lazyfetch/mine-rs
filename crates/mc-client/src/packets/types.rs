@@ -2,6 +2,7 @@ use std::io::Read;
 
 use mc_protocol::types::types::DecodeError;
 
+// -- for clientbound.rs --
 pub trait ApplyEvent<E> {
     fn apply(&mut self, event: &mut E);
 }
@@ -15,3 +16,4 @@ pub trait ProvideTargetKey {
 
     fn key(&self) -> Self::Key;
 }
+// -- end --

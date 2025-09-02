@@ -62,7 +62,9 @@ impl ClientBuilder {
             username: self.username,
             state: self.state,
             tcp_stream: stream,
+            master_handlers: self.master_handlers,
             registries: self.registries,
+            compression: self.compression,
         })
     } 
 }
