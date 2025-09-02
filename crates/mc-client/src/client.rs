@@ -6,9 +6,10 @@ use crate::types::RegistriesMap;
 use super::ClientBuilder;
 use super::State;
 use flate2::bufread::ZlibDecoder;
-use mc_protocol::types::types::Decode;
-use mc_protocol::types::types::Int;
-use mc_protocol::types::types::VarInt;
+use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId;
+use mc_protocol::packets::types::types::Decode;
+use mc_protocol::packets::types::types::VarInt;
+use mc_protocol::player::Player;
 use tokio::io::AsyncReadExt;
 use tokio::net::TcpStream;
 
@@ -35,7 +36,8 @@ impl Client {
 
         } */
     }
-
+    
+    // this all look like shit...
     async fn parse(&mut self) {
         let mut buffer = Vec::with_capacity(4096);
 
@@ -80,8 +82,17 @@ impl Client {
                 };
                 let mut data_cursor = Cursor::new(&uncompressed_data);
                 let packet_id = VarInt::decode(&mut data_cursor).unwrap(); // temp shit?
-
-                // match with master_handlers map and find closure, run, and have fun...
+                let id = PlayClientboundPacketId::try_from(packet_id.0).unwrap();
+                let res = self.master_handlers.get_mut(&id);
+                let mut raw_data = Vec::new(); // shit temp
+                Read::read_to_end(&mut data_cursor,&mut raw_data); // temp shit
+                match res {
+                    Some(closure) => {
+                        (closure)(&mut self.registries, &raw_data[..]) 
+                    }
+                    None => {}
+                }
+                cursor.set_position(end_of_packet_pos as u64);
             }
             let bytes_processed = cursor.position() as usize;
             buffer.drain(..bytes_processed);

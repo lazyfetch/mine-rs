@@ -1,6 +1,6 @@
-// use num_enum::TryFromPrimitive;
+use num_enum::TryFromPrimitive;
 
-#[derive(Debug, Eq, PartialEq, Hash, /*TryFromPrimitive*/)]
+#[derive(Debug, Eq, PartialEq, Hash, TryFromPrimitive)]
 #[repr(i32)]
 pub enum LoginClientboundPacketId {
     Disconnect = 0x00,
@@ -11,7 +11,7 @@ pub enum LoginClientboundPacketId {
     CookieRequest = 0x05,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, /*TryFromPrimitive*/)]
+#[derive(Debug, Eq, PartialEq, Hash, TryFromPrimitive)]
 #[repr(i32)]
 pub enum ConfigureClientboundPacketId {
     CookieRequest = 0x00,
@@ -35,7 +35,7 @@ pub enum ConfigureClientboundPacketId {
     ShowDialog = 0x12,
 }
 
-#[derive(Debug, Eq, PartialEq, Hash, /*TryFromPrimitive*/)]
+#[derive(Debug, Eq, PartialEq, Hash, TryFromPrimitive)]
 #[repr(i32)]
 pub enum PlayClientboundPacketId {
     BundleDelimiter = 0x00,

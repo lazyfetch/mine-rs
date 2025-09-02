@@ -1,4 +1,4 @@
-use crate::types::types::{Angle, Boolean, Double, Int, Short, UUID};
+use crate::packets::types::types::{Angle, Boolean, Double, Int, Short, UUID};
 
 // player is not primivite dude, so temp
 #[derive(Default)]

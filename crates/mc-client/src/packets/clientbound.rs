@@ -1,5 +1,5 @@
 use std::io::Read;
-use mc_protocol::{entity::Entity, types::types::{Angle, Boolean, Decode, DecodeError, Short, VarInt}};
+use mc_protocol::{entity::Entity, packets::types::types::{Angle, Boolean, Decode, DecodeError, Short, VarInt}};
 
 use crate::packets::types::{ApplyEvent, Parse, ProvideTargetKey};
 

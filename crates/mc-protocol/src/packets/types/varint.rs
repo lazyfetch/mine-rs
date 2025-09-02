@@ -1,6 +1,12 @@
 use std::io::Read;
 
-use crate::types::types::{Decode, DecodeError, Encode, EncodeError, Int, VarInt, VARINT_LENGTH};
+use crate::packets::{packet_ids_sb::HandshakeServerboundPacketId, types::types::{Decode, DecodeError, Encode, EncodeError, Int, VarInt, VARINT_LENGTH}};
+
+impl From<HandshakeServerboundPacketId> for VarInt {
+    fn from(packet_id: HandshakeServerboundPacketId) -> Self {
+        VarInt(packet_id as i32)
+    }
+}
 
 impl Decode for VarInt {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {

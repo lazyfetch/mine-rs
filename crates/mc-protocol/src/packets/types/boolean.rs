@@ -1,6 +1,6 @@
 use std::io::Read;
 
-use crate::types::types::{Boolean, Decode, DecodeError, Encode};
+use crate::packets::types::types::{Boolean, Decode, DecodeError, Encode};
 
 impl Decode for Boolean {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {

@@ -1,6 +1,6 @@
 use std::io::Read;
 
-use crate::types::types::{Decode, DecodeError, Encode, EncodeError, Long, VarLong, VARLONG_LENGTH};
+use crate::packets::types::types::{Decode, DecodeError, Encode, EncodeError, Long, VarLong, VARLONG_LENGTH};
 
 impl Decode for VarLong {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {

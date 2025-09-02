@@ -1,4 +1,4 @@
-use crate::types::types::{Angle, Decode};
+use crate::packets::types::types::{Angle, Decode};
 
 impl Decode for Angle {
     fn decode<R: std::io::Read>(reader: &mut R) -> Result<Self, super::types::DecodeError> {

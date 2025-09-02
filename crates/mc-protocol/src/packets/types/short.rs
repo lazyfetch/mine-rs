@@ -1,4 +1,4 @@
-use crate::types::types::{Decode, Short};
+use crate::packets::types::types::{Decode, Short};
 
 impl Decode for Short {
     fn decode<R: std::io::Read>(reader: &mut R) -> Result<Self, super::types::DecodeError> {
