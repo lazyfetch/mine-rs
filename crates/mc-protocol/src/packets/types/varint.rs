@@ -1,9 +1,24 @@
 use std::io::Read;
 
-use crate::packets::{packet_ids_sb::HandshakeServerboundPacketId, types::types::{Decode, DecodeError, Encode, EncodeError, Int, VarInt, VARINT_LENGTH}};
+use crate::packets::{packet_ids_sb::{ConfigureServerboundPacketId, HandshakeServerboundPacketId, LoginServerboundPacketId, PlayServerboundPacketId}, types::types::{Decode, DecodeError, Encode, EncodeError, Int, VarInt, VARINT_LENGTH}};
 
 impl From<HandshakeServerboundPacketId> for VarInt {
     fn from(packet_id: HandshakeServerboundPacketId) -> Self {
+        VarInt(packet_id as i32)
+    }
+}
+impl From<LoginServerboundPacketId> for VarInt {
+    fn from(packet_id: LoginServerboundPacketId) -> Self {
+        VarInt(packet_id as i32)
+    }
+}
+impl From<ConfigureServerboundPacketId> for VarInt {
+    fn from(packet_id: ConfigureServerboundPacketId) -> Self {
+        VarInt(packet_id as i32)
+    }
+}
+impl From<PlayServerboundPacketId> for VarInt {
+    fn from(packet_id: PlayServerboundPacketId) -> Self {
         VarInt(packet_id as i32)
     }
 }
