@@ -1,6 +1,6 @@
 use std::io::Read;
 
-use crate::packets::types::types::{Boolean, Decode, DecodeError, Encode};
+use crate::packets::types::types::{Boolean, Decode, DecodeError, Encode, EncodeError};
 
 impl Decode for Boolean {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
@@ -23,7 +23,7 @@ impl Decode for Boolean {
 }
 
 impl Encode for Boolean {
-    fn encode(&self, writer: &mut Vec<u8>) -> Result<(), super::types::EncodeError> {
+    fn encode(&self, writer: &mut Vec<u8>) -> Result<(), EncodeError> {
         match self {
             true => writer.push(0x01),
             false => writer.push(0x00),

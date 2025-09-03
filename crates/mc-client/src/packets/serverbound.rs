@@ -26,7 +26,7 @@ impl PacketBuilder for Handshake {
     type Data = HandshakeData;
 
     fn build(data: Self::Data) -> Result<Vec<u8>, EncodeError> {
-        let payload: Vec<u8> = Vec::new();
+        let mut payload: Vec<u8> = Vec::new();
         VarInt::from(Self::ID).encode(&mut payload)?;
         data.protocol_version.encode(&mut payload)?;
         data.server_address.encode(&mut payload)?;

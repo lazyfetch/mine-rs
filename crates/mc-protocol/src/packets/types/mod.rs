@@ -6,3 +6,4 @@ pub mod boolean;
 pub mod prefixed_array;
 pub mod short;
 pub mod angle;
+pub mod ushort;

@@ -1,10 +1,11 @@
-use std::io::Read;
+use std::{io::Read, str::Utf8Error, string::FromUtf8Error};
 
 use num_enum::TryFromPrimitive;
 
 // This mean varint or varlong cant be more than 32-bit or 64-bit val
 pub const VARINT_LENGTH: i8 = 5;
 pub const VARLONG_LENGTH: i8 = 10;
+pub const STRING_LENGTH: usize = 32767;
 
 // Aliases
 pub type Boolean = bool;
@@ -18,18 +19,24 @@ pub type Float = f32;
 pub type Double = f64;
 pub type Angle = u8;
 pub type UUID = u128;
+pub type StringMC = PrefixedArray<String>;
 
 // new types
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct VarInt(pub Int);
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct VarLong(pub Long);
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PrefixedArray<T> {
+    pub length: VarInt,
+    pub data: T,
+}
 
 #[derive(Debug)]
 pub enum DecodeError {
     Io(std::io::Error),
     InvalidValue(String),
+    Utf8(FromUtf8Error),
 }
 
 impl From<std::io::Error> for DecodeError {
@@ -48,6 +55,12 @@ pub enum EncodeError {
     ProtocolViolation(String),
 }
 
+impl From<FromUtf8Error> for DecodeError {
+    fn from(value: FromUtf8Error) -> Self {
+        DecodeError::Utf8(value)
+    }
+}
+
 impl From<std::io::Error> for EncodeError {
     fn from(err: std::io::Error) -> Self {
         EncodeError::Io(err)
@@ -57,3 +70,5 @@ impl From<std::io::Error> for EncodeError {
 pub trait Encode: Sized {
     fn encode(&self, writer: &mut Vec<u8>) -> Result<(), EncodeError>;
 }
+
+// -- decode realization
