@@ -18,18 +18,6 @@ impl PlayerController {
         // send to channel
 
         // enjoy the life :)
-        // example
-        let st = "localhost".to_string();
-        let data = HandshakeData {
-            protocol_version: VarInt(3),
-            server_address: PrefixedArray{
-                length: VarInt(st.len() as i32),
-                data: st,
-            },
-            server_port: 25565,
-        };
-        Handshake::build(data);
-        Ok(())
     }
 
     pub fn move_and_rotate() {

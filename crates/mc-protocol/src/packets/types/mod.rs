@@ -7,3 +7,5 @@ pub mod prefixed_array;
 pub mod short;
 pub mod angle;
 pub mod ushort;
+pub mod double;
+pub mod uuid;

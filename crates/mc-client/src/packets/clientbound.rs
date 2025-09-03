@@ -1,10 +1,12 @@
 use std::io::Read;
-use mc_protocol::{entity::Entity, packets::types::types::{Angle, Boolean, Decode, DecodeError, Short, VarInt}};
+use mc_protocol::{entity::{self, Entity}, packets::types::types::{Angle, Boolean, Decode, DecodeError, Double, Short, VarInt, UUID}};
 
-use crate::packets::types::{ApplyEvent, Parse, ProvideTargetKey};
+use crate::{packets::types::{ApplyEvent, Parse, ProvideTargetKey}, registries::SpawnEvent, EntityStorage};
 
+
+// -- EntityMoveData --
 pub struct EntityMoveData {
-    id: VarInt, // actually varint
+    id: VarInt,
     delta_x: Short,
     delta_y: Short,
     delta_z: Short,
@@ -36,9 +38,11 @@ impl ProvideTargetKey for EntityMoveData {
         self.id.0 // Temp, be sure it's work correctly, and its logical correctly
     }
 }
+// -- EntityMoveData end --
 
+// -- EntityRotationData --
 pub struct EntityRotationData {
-    id: VarInt, // actually varint
+    id: VarInt,
     yaw: Angle,
     pitch: Angle,
     on_ground: Boolean,
@@ -70,3 +74,72 @@ impl Parse for EntityRotationData {
         })
     }
 }
+
+// -- EntityRotationData end --
+
+// -- SpawnEntityData --
+pub struct SpawnEntityData {
+    id: VarInt,
+    uuid: UUID,
+    r#type: VarInt,
+    x: Double,
+    y: Double,
+    z: Double,
+    pitch: Angle,
+    yaw: Angle,
+    head_yaw: Angle,
+    data: VarInt,
+    velocity_x: Short,
+    velocity_y: Short,
+    velocity_z: Short,
+} 
+
+impl SpawnEntityData {
+    fn into_entity(&self) -> Entity {
+        Entity {
+            id: self.id,
+            uuid: self.uuid,
+            r#type: self.r#type,
+            x: self.x,
+            y: self.y,
+            z: self.z,
+            pitch: self.pitch,
+            yaw: self.yaw,
+            head_yaw: self.head_yaw,
+            data: self.data,
+            velocity_x: self.velocity_x,
+            velocity_y: self.velocity_y,
+            velocity_z: self.velocity_z,
+            on_ground: true, // temp shit absolutely temp shit
+        }
+    }
+}
+
+impl Parse for SpawnEntityData {
+    fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
+        Ok(SpawnEntityData { 
+            id: VarInt::decode(reader)?, 
+            uuid: UUID::decode(reader)?, 
+            r#type: VarInt::decode(reader)?, 
+            x: Double::decode(reader)?, 
+            y: Double::decode(reader)?, 
+            z: Double::decode(reader)?, 
+            pitch: Angle::decode(reader)?, 
+            yaw: Angle::decode(reader)?, 
+            head_yaw: Angle::decode(reader)?, 
+            data: VarInt::decode(reader)?, 
+            velocity_x: Short::decode(reader)?, 
+            velocity_y: Short::decode(reader)?, 
+            velocity_z: Short::decode(reader)?, 
+        })
+    }
+}
+
+impl SpawnEvent<EntityStorage> for SpawnEntityData {
+    fn spawn(&mut self, event: &mut EntityStorage) {
+        let entity = self.into_entity(); 
+        event.add(entity);
+    }
+}
+
+// -- SpawnEntityData end

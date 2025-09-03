@@ -1,14 +1,3 @@
-use crate::packets::types::{Parse, ProvideTargetKey, ApplyEvent};
-use crate::packets::clientbound::EntityMoveData;
-use crate::types::MasterHandlers;
-use crate::EntityStorage;
-
-use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId::UpdateEntityPosition;
-use std::any::TypeId;
-
-// apply? remove? spawn, with_reply (like keep-alive, batch chunks)?...
-// its literally HTTP with GET POST DELETE UPDATE LOOL, nvrmd, maybe i need create another macro rules
-// and put it into ./types.rs, think about it man
 macro_rules! handle_apply_event {
     (
         $fn_name:ident,
@@ -49,8 +38,7 @@ macro_rules! handle_apply_event {
 
 macro_rules! handle_with_reply_event {
     (
-        $fn_name:ident,
-        $packet_id:expr,
+
     ) => {
         
     };
@@ -64,38 +52,8 @@ macro_rules! handle_remove_event {
 
 macro_rules! handle_spawn_event {
     (
-        $fn_name:ident,
-        $packet_id:expr,
-        $target_type:ty,
+        
     ) => {
-        pub fn $fn_name<F>(&mut self, mut user_callback: F) -> &mut Self
-        where
-            F: FnMut(&mut &target_type)
+        
     };
-}
-
-pub struct EntityHandlerRegistry<'a> {
-    pub master_handlers: &'a mut MasterHandlers,
-}
-
-impl<'a> EntityHandlerRegistry<'a> {
-
-    handle_apply_event!(
-        on_move,
-        UpdateEntityPosition,
-        EntityStorage,
-        EntityMoveData,
-        mc_protocol::entity::Entity,
-        get_entity_mut,
-    );
-
-    pub fn new(master_handlers: &'a mut MasterHandlers) -> Self {
-        EntityHandlerRegistry {
-            master_handlers,
-        }
-    }
-
-    pub fn on_remove(&mut self) -> &mut Self {
-        self
-    }
 }

@@ -1,10 +1,10 @@
-use crate::packets::types::types::{Angle, Boolean, Double, Int, Short, UUID};
+use crate::packets::types::types::{Angle, Boolean, Double, Int, Short, VarInt, UUID};
 
 // temp description of struct
 pub struct Entity {
-    pub id: Int,
+    pub id: VarInt,
     pub uuid: UUID, 
-    pub r#type: Int,
+    pub r#type: VarInt,
 
     pub x: Double,
     pub y: Double,
@@ -14,7 +14,7 @@ pub struct Entity {
     pub yaw: Angle,
     pub head_yaw: Angle,
 
-    pub data: Int,
+    pub data: VarInt,
     
     pub velocity_x: Short,
     pub velocity_y: Short,

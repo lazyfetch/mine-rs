@@ -7,6 +7,18 @@ pub trait ApplyEvent<E> {
     fn apply(&mut self, event: &mut E);
 }
 
+pub trait RemoveEvent<E> {
+    fn remove(&mut self, event: &mut E);
+}
+
+pub trait WithReplyEvent<E> { // not sure
+    fn reply(&mut self, event: &mut E);
+}
+
+pub trait SpawnEvent<E> {
+    fn spawn(&mut self, event: &mut E);
+}
+
 pub trait Parse: Sized {
     fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError>;
 }
