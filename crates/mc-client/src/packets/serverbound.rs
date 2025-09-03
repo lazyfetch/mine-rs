@@ -12,13 +12,13 @@
 // 0x00 configure. Well must next packets need to ping-pong meanings so server send some shit to client, client response
 // its mean login_handler_registry or something else to boostrap our client, make all steps and success coming on Login stage
 
-use mc_protocol::packets::{packet_ids_sb::Handshake, types::types::{Encode, EncodeError, UShort, VarInt}, Packet};
+use mc_protocol::packets::{packet_ids_sb::Handshake, types::types::{Encode, EncodeError, UShort, VarInt, StringMC}, Packet};
 
 use crate::registries::PacketBuilder;
 
 pub struct HandshakeData {
     pub protocol_version: VarInt,
-    pub server_address: String,
+    pub server_address: StringMC,
     pub server_port: UShort,
 }
 

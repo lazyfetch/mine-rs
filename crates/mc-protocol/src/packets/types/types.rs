@@ -1,6 +1,4 @@
-use std::{io::Read, str::Utf8Error, string::FromUtf8Error};
-
-use num_enum::TryFromPrimitive;
+use std::{io::Read, string::FromUtf8Error};
 
 // This mean varint or varlong cant be more than 32-bit or 64-bit val
 pub const VARINT_LENGTH: i8 = 5;
@@ -70,5 +68,3 @@ impl From<std::io::Error> for EncodeError {
 pub trait Encode: Sized {
     fn encode(&self, writer: &mut Vec<u8>) -> Result<(), EncodeError>;
 }
-
-// -- decode realization
