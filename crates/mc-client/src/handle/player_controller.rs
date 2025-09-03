@@ -3,7 +3,7 @@ use std::fmt::Error;
 use mc_protocol::packets::{packet_ids_sb::Handshake, types::types::{Double, PrefixedArray, VarInt}};
 use tokio::sync::mpsc::Sender;
 
-use crate::{packets::serverbound::HandshakeData, registries::PacketBuilder};
+use crate::{packets::serverbound::HandshakeData, registries::{DataBuilder}};
 
 
 pub struct PlayerController {

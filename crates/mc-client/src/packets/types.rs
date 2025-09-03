@@ -19,7 +19,7 @@ pub trait ProvideTargetKey {
 // -- end --
 
 // -- for serverbound.rs -- 
-pub trait PacketBuilder {
+pub trait DataBuilder {
     type Data;
 
     fn build(data: Self::Data) -> Result<Vec<u8>, EncodeError>;

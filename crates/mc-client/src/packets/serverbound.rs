@@ -12,9 +12,9 @@
 // 0x00 configure. Well must next packets need to ping-pong meanings so server send some shit to client, client response
 // its mean login_handler_registry or something else to boostrap our client, make all steps and success coming on Login stage
 
-use mc_protocol::packets::{packet_ids_sb::Handshake, types::types::{Encode, EncodeError, UShort, VarInt, StringMC}, Packet};
+use mc_protocol::packets::{packet_ids_sb::{Handshake, Login, LoginAcknowledged}, types::types::{Encode, EncodeError, StringMC, UShort, VarInt}, Packet};
 
-use crate::registries::PacketBuilder;
+use crate::registries::DataBuilder;
 
 pub struct HandshakeData {
     pub protocol_version: VarInt,
@@ -22,15 +22,44 @@ pub struct HandshakeData {
     pub server_port: UShort,
 }
 
-impl PacketBuilder for Handshake {
+impl DataBuilder for Handshake {
     type Data = HandshakeData;
 
     fn build(data: Self::Data) -> Result<Vec<u8>, EncodeError> {
-        let mut payload: Vec<u8> = Vec::new();
-        VarInt::from(Self::ID).encode(&mut payload)?;
-        data.protocol_version.encode(&mut payload)?;
-        data.server_address.encode(&mut payload)?;
-        data.server_port.encode(&mut payload)?;
-        Ok(payload)
+        let mut buf: Vec<u8> = Vec::new();
+        VarInt::from(Self::ID).encode(&mut buf)?;
+        data.protocol_version.encode(&mut buf)?;
+        data.server_address.encode(&mut buf)?;
+        data.server_port.encode(&mut buf)?;
+        Ok(buf)
     }
+}
+
+pub struct LoginStartData {
+    pub name: StringMC,
+    // player_uuid: UUID // unused 
+}
+
+impl DataBuilder for Login {
+    type Data = LoginStartData;
+
+    fn build(data: Self::Data) -> Result<Vec<u8>, EncodeError> {
+        let mut buf: Vec<u8> = Vec::new();
+        VarInt::from(Self::ID).encode(&mut buf)?;
+        data.name.encode(&mut buf)?;
+        Ok(buf)
+    }
+}
+
+pub struct LoginAcknowledgedData;
+
+impl DataBuilder for LoginAcknowledged {
+    type Data = LoginAcknowledgedData;
+
+    fn build(_data: Self::Data) -> Result<Vec<u8>, EncodeError> {
+        let mut buf: Vec<u8> = Vec::new();
+        VarInt::from(Self::ID).encode(&mut buf)?;
+        Ok(buf)
+    }
+
 }
