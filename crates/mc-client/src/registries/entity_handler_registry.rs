@@ -1,78 +1,20 @@
+use mc_protocol::entity::Entity;
+use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId::SpawnEntity;
+
 use crate::packets::types::{Parse, ProvideTargetKey, ApplyEvent};
-use crate::packets::clientbound::EntityMoveData;
+use crate::packets::clientbound::{EntityMoveData, SpawnEntityData};
 use crate::types::MasterHandlers;
-use crate::EntityStorage;
+use crate::{handle_apply_event, handle_spawn_event, EntityStorage};
+use crate::packets::types::SpawnEvent;
 
 use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId::UpdateEntityPosition;
 use std::any::TypeId;
 
+use std::io::Cursor;
+
 // apply? remove? spawn, with_reply (like keep-alive, batch chunks)?...
 // its literally HTTP with GET POST DELETE UPDATE LOOL, nvrmd, maybe i need create another macro rules
 // and put it into ./types.rs, think about it man
-macro_rules! handle_apply_event {
-    (
-        $fn_name:ident,
-        $packet_id:expr,
-        $registry_type:ty,
-        $packet_data_type:ty,
-        $target_type:ty,
-        $get_target_fn:ident,
-    ) => {
-        pub fn $fn_name<F>(&mut self, mut user_callback: F) -> &mut Self 
-        where
-            $packet_data_type: Parse + ProvideTargetKey + ApplyEvent<$target_type>,
-            F: FnMut(&mut $target_type) + 'static
-        {
-            self.master_handlers.insert($packet_id, Box::new(move |registries, raw_bytes| {
-                    
-                    // parse data
-                let mut reader = std::io::Cursor::new(raw_bytes);
-                let mut packet_data = <$packet_data_type>::parse(&mut reader).unwrap(); // temp shit
-
-                // find registry
-                if let Some(registry) = registries.get_mut(&TypeId::of::<$registry_type>())
-                    .and_then(|any| any.downcast_mut::<$registry_type>()) {
-                        if let Some(mut target) = registry.$get_target_fn(packet_data.key()) {
-                                
-                            // apply new info
-                            packet_data.apply(&mut target);
-
-                            // user callback
-                            user_callback(&mut target)
-                        }
-                    }
-            }));
-            self
-        }
-    };
-}
-
-macro_rules! handle_with_reply_event {
-    (
-        $fn_name:ident,
-        $packet_id:expr,
-    ) => {
-        
-    };
-}
-
-macro_rules! handle_remove_event {
-    () => {
-        
-    };
-}
-
-macro_rules! handle_spawn_event {
-    (
-        $fn_name:ident,
-        $packet_id:expr,
-        $target_type:ty,
-    ) => {
-        pub fn $fn_name<F>(&mut self, mut user_callback: F) -> &mut Self
-        where
-            F: FnMut(&mut &target_type)
-    };
-}
 
 pub struct EntityHandlerRegistry<'a> {
     pub master_handlers: &'a mut MasterHandlers,
@@ -80,20 +22,29 @@ pub struct EntityHandlerRegistry<'a> {
 
 impl<'a> EntityHandlerRegistry<'a> {
 
-    handle_apply_event!(
-        on_move,
-        UpdateEntityPosition,
-        EntityStorage,
-        EntityMoveData,
-        mc_protocol::entity::Entity,
-        get_entity_mut,
-    );
-
     pub fn new(master_handlers: &'a mut MasterHandlers) -> Self {
         EntityHandlerRegistry {
             master_handlers,
         }
     }
+
+    handle_apply_event!(
+        on_move,
+        UpdateEntityPosition,
+        EntityStorage,
+        EntityMoveData,
+        Entity,
+        get_entity_mut,
+    );
+
+    handle_spawn_event!(
+        on_spawn,
+        SpawnEntity,
+        EntityStorage,
+        SpawnEntityData,
+        Entity,
+        get_entity_mut,
+    );
 
     pub fn on_remove(&mut self) -> &mut Self {
         self

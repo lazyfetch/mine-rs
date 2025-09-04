@@ -9,3 +9,4 @@ pub mod angle;
 pub mod ushort;
 pub mod double;
 pub mod uuid;
+pub mod long;

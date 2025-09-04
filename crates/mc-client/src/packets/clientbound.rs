@@ -1,7 +1,7 @@
 use std::io::Read;
-use mc_protocol::{entity::{self, Entity}, packets::types::types::{Angle, Boolean, Decode, DecodeError, Double, Short, VarInt, UUID}};
+use mc_protocol::{entity::{self, Entity}, packets::types::types::{Angle, Boolean, Decode, DecodeError, Double, Long, Short, VarInt, UUID}};
 
-use crate::{packets::types::{ApplyEvent, Parse, ProvideTargetKey}, registries::SpawnEvent, EntityStorage};
+use crate::{packets::{serverbound, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{SpawnEvent, WithReply}, EntityStorage};
 
 
 // -- EntityMoveData --
@@ -74,7 +74,6 @@ impl Parse for EntityRotationData {
         })
     }
 }
-
 // -- EntityRotationData end --
 
 // -- SpawnEntityData --
@@ -115,6 +114,14 @@ impl SpawnEntityData {
     }
 }
 
+impl ProvideTargetKey for SpawnEntityData {
+    type Key = i32;
+    
+    fn key(&self) -> Self::Key {
+        self.id.0 // temp??? temp
+    }
+}
+
 impl Parse for SpawnEntityData {
     fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
         Ok(SpawnEntityData { 
@@ -141,5 +148,27 @@ impl SpawnEvent<EntityStorage> for SpawnEntityData {
         event.add(entity);
     }
 }
-
 // -- SpawnEntityData end
+
+// -- KeepAliveData --
+pub struct KeepAlivePlayData {
+    id: Long,
+}
+
+impl Parse for KeepAlivePlayData {
+    fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
+        Ok(KeepAlivePlayData { 
+            id: Long::decode(reader)? 
+        })
+    }
+}
+
+impl WithReply for KeepAlivePlayData {
+    type Reply = serverbound::KeepAlivePlayData;
+
+    fn with_reply(&self) -> Self::Reply {
+        serverbound::KeepAlivePlayData {
+            id: self.id,
+        }
+    }
+}

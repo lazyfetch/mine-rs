@@ -1,21 +1,8 @@
-// 0x00 handshaking
-// protocol version - VarInt (772)
-// Server address - string (255) 127.0.0.1 like u know
-// Port - ushort 
-// Intent - VarInt Enum 1. Status 2. Login 3. Transfer (2 for us)
-// 0x00 login
-// name - String(16)
-// uuid - uuid (unused)
-// 0x01 skip, cuz we dont use encryption for now
-// 0x02 also
-// 0x03 login acknowledged
-// 0x00 configure. Well must next packets need to ping-pong meanings so server send some shit to client, client response
-// its mean login_handler_registry or something else to boostrap our client, make all steps and success coming on Login stage
+use mc_protocol::packets::{packet_ids_sb::{Handshake, KeepAlivePlay, Login, LoginAcknowledged}, types::types::{Encode, EncodeError, Long, StringMC, UShort, VarInt}, Packet};
 
-use mc_protocol::packets::{packet_ids_sb::{Handshake, Login, LoginAcknowledged}, types::types::{Encode, EncodeError, StringMC, UShort, VarInt}, Packet};
+use crate::{packets::serverbound, registries::{DataBuilder, WithReply}};
 
-use crate::registries::DataBuilder;
-
+// -- HandshakeData --
 pub struct HandshakeData {
     pub protocol_version: VarInt,
     pub server_address: StringMC,
@@ -34,7 +21,9 @@ impl DataBuilder for Handshake {
         Ok(buf)
     }
 }
+// -- HandshakeData end --
 
+// -- LoginStartData --
 pub struct LoginStartData {
     pub name: StringMC,
     // player_uuid: UUID // unused 
@@ -50,7 +39,9 @@ impl DataBuilder for Login {
         Ok(buf)
     }
 }
+// -- LoginStartData end --
 
+// -- LoginAcknowledgedData --
 pub struct LoginAcknowledgedData;
 
 impl DataBuilder for LoginAcknowledged {
@@ -63,3 +54,21 @@ impl DataBuilder for LoginAcknowledged {
     }
 
 }
+// -- LoginAcknowledgedData end --
+
+// -- KeepAliveData --
+pub struct KeepAlivePlayData {
+    pub id: Long,
+}
+
+impl DataBuilder for KeepAlivePlay {
+    type Data = KeepAlivePlayData;
+    
+    fn build(data: Self::Data) -> Result<Vec<u8>, EncodeError> {
+        let mut buf: Vec<u8> = Vec::new();
+        VarInt::from(Self::ID).encode(&mut buf)?;
+        data.id.encode(&mut buf)?;
+        Ok(buf)
+    }
+}
+// -- KeepAliveData end --

@@ -132,4 +132,11 @@ pub enum PlayServerboundPacketId {
     CustomClickAction = 0x41, 
 }
 
+pub struct KeepAlivePlay;
+
+impl Packet for KeepAlivePlay {
+    type Id = PlayServerboundPacketId;
+    const ID: Self::Id = PlayServerboundPacketId::KeepAlive;
+}
+
 // -- Play end

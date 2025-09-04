@@ -28,6 +28,12 @@ pub trait ProvideTargetKey {
 
     fn key(&self) -> Self::Key;
 }
+
+pub trait WithReply {
+    type Reply;
+
+    fn with_reply(&self) -> Self::Reply;
+}
 // -- end --
 
 // -- for serverbound.rs -- 
