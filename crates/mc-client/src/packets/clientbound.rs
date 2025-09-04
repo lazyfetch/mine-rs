@@ -1,7 +1,7 @@
 use std::io::Read;
 use mc_protocol::{entity::Entity, packets::types::types::{Angle, Boolean, Decode, DecodeError, Double, Long, PrefixedArray, Short, VarInt, UUID}};
 
-use crate::{packets::{decode, serverbound, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{RemoveEvent, SpawnEvent, WithReply}, EntityStorage};
+use crate::{packets::{serverbound, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{RemoveEvent, SpawnEvent, WithReply}, EntityStorage};
 
 
 // -- EntityMoveData --

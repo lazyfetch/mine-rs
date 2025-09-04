@@ -1,4 +1,4 @@
-use crate::packets::types::types::{Angle, Boolean, Double, Int, Short, VarInt, UUID};
+use crate::packets::types::types::{Angle, Boolean, Double, Short, VarInt, UUID};
 
 // temp description of struct
 pub struct Entity {

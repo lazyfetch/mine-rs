@@ -68,3 +68,18 @@ impl Encode for VarInt {
         Ok(())
     }
 }
+
+impl VarInt {
+    pub fn size(&self) -> usize {
+        let mut value = self.0 as u32;
+        let mut size = 0;
+        loop {
+            size += 1;
+            if (value & 0xFFFFFF80) == 0 {
+                break;
+            }
+            value >>= 7;
+        }
+        size
+    }
+}

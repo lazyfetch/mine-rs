@@ -114,12 +114,10 @@ macro_rules! handle_remove_event {
         $packet_id:expr,
         $registry_type:ty,
         $packet_data_type:ty,
-        $target_type:ty,
-        $get_target_fn:ident,
     ) => {
         pub fn $fn_name<F>(&mut self, mut user_callback: F) -> &mut Self 
         where
-            $packet_data_type: Parse + RemoveEvent<$target_type>,
+            $packet_data_type: Parse + $crate::packets::types::RemoveEvent<$registry_type>,
             F: FnMut(&$packet_data_type) + 'static
         {
             self.master_handlers.insert($packet_id, Box::new(move |registries, raw_bytes| {
@@ -129,7 +127,7 @@ macro_rules! handle_remove_event {
 
                 if let Some(registry) = registries.get_mut(&TypeId::of::<$registry_type>())
                     .and_then(|any| any.downcast_mut::<$registry_type>()) {
-                        packet_data.remove(&mut registry);
+                        packet_data.remove(registry);
 
                         (user_callback)(&packet_data);
                     }

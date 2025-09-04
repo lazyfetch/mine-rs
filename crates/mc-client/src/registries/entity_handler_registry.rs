@@ -1,10 +1,11 @@
 use mc_protocol::entity::Entity;
-use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId::SpawnEntity;
+use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId::{SpawnEntity, RemoveEntities};
+use crate::packets::types::RemoveEvent;
 
 use crate::packets::types::{Parse, ProvideTargetKey, ApplyEvent};
-use crate::packets::clientbound::{EntityMoveData, SpawnEntityData};
+use crate::packets::clientbound::{EntityMoveData, RemoveEntitiesData, SpawnEntityData};
 use crate::types::MasterHandlers;
-use crate::{handle_apply_event, handle_spawn_event, EntityStorage};
+use crate::{handle_apply_event, handle_remove_event, handle_spawn_event, EntityStorage};
 use crate::packets::types::SpawnEvent;
 
 use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId::UpdateEntityPosition;
@@ -46,7 +47,10 @@ impl<'a> EntityHandlerRegistry<'a> {
         get_entity_mut,
     );
 
-    pub fn on_remove(&mut self) -> &mut Self {
-        self
-    }
+    handle_remove_event!(
+        on_remove,
+        RemoveEntities,
+        EntityStorage,
+        RemoveEntitiesData,
+    );
 }

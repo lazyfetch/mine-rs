@@ -134,6 +134,7 @@ dependencies = [
 name = "mc-client"
 version = "0.1.0"
 dependencies = [
+ "bytes",
  "flate2",
  "mc-protocol",
  "num_enum",

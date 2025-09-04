@@ -9,7 +9,6 @@ use flate2::bufread::ZlibDecoder;
 use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId;
 use mc_protocol::packets::types::types::Decode;
 use mc_protocol::packets::types::types::VarInt;
-use mc_protocol::player::Player;
 use tokio::io::AsyncReadExt;
 use tokio::net::TcpStream;
 

@@ -1,6 +1,6 @@
 use mc_protocol::packets::{packet_ids_sb::{Handshake, KeepAlivePlay, Login, LoginAcknowledged}, types::types::{Encode, EncodeError, Long, StringMC, UShort, VarInt}, Packet};
 
-use crate::{packets::serverbound, registries::{DataBuilder, WithReply}};
+use crate::{registries::{DataBuilder}};
 
 // -- HandshakeData --
 pub struct HandshakeData {
