@@ -23,6 +23,12 @@ impl From<PlayServerboundPacketId> for VarInt {
     }
 }
 
+impl From<i32> for VarInt {
+    fn from(val: i32) -> Self {
+        VarInt(val)
+    }
+}
+
 impl Decode for VarInt {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
         let mut num_read = 0;

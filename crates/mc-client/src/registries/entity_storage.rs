@@ -14,4 +14,8 @@ impl EntityStorage {
     pub fn add(&mut self, entity: Entity) {
         self.entities.insert(entity.id.0, entity);
     }
+
+    pub fn remove(&mut self, key: &i32) {
+        self.entities.remove(key);
+    }
 }

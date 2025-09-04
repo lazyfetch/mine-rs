@@ -5,7 +5,7 @@ pub const VARINT_LENGTH: i8 = 5;
 pub const VARLONG_LENGTH: i8 = 10;
 pub const STRING_LENGTH: usize = 32767;
 
-// Aliases
+// -- Aliases --
 pub type Boolean = bool;
 pub type Byte = i8;
 pub type UByte = u8;
@@ -17,20 +17,23 @@ pub type Float = f32;
 pub type Double = f64;
 pub type Angle = u8;
 pub type UUID = u128;
-pub type StringMC = PrefixedArray<String>;
+// -- Aliases end --
 
-// new types
+// -- types --
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct VarInt(pub Int);
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct VarLong(pub Long);
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct PrefixedArray<T> {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PrefixedArray<T: Encode + Decode> {
     pub length: VarInt,
-    pub data: T,
+    pub data: Vec<T>,
 }
-
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct StringMC(pub String);
 #[derive(Debug)]
+// -- types end --
+
 pub enum DecodeError {
     Io(std::io::Error),
     InvalidValue(String),

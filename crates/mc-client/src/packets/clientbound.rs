@@ -1,7 +1,7 @@
 use std::io::Read;
-use mc_protocol::{entity::{self, Entity}, packets::types::types::{Angle, Boolean, Decode, DecodeError, Double, Long, Short, VarInt, UUID}};
+use mc_protocol::{entity::Entity, packets::types::types::{Angle, Boolean, Decode, DecodeError, Double, Long, PrefixedArray, Short, VarInt, UUID}};
 
-use crate::{packets::{serverbound, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{SpawnEvent, WithReply}, EntityStorage};
+use crate::{packets::{decode, serverbound, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{RemoveEvent, SpawnEvent, WithReply}, EntityStorage};
 
 
 // -- EntityMoveData --
@@ -150,7 +150,29 @@ impl SpawnEvent<EntityStorage> for SpawnEntityData {
 }
 // -- SpawnEntityData end
 
-// -- KeepAliveData --
+// -- RemoveEntitiesData --
+pub struct RemoveEntitiesData {
+    ids: PrefixedArray<VarInt>
+}
+
+impl Parse for RemoveEntitiesData {
+    fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
+        Ok(RemoveEntitiesData { 
+            ids: PrefixedArray::<VarInt>::decode(reader)?
+        })
+    }
+}
+
+impl RemoveEvent<EntityStorage> for RemoveEntitiesData {
+    fn remove(&mut self, event: &mut EntityStorage) {
+        for key in self.ids.data.iter() {
+            event.remove(&key.0);
+        }
+    }
+}
+// -- RemoveEntitiesData end --
+
+// -- KeepAlivePlayData --
 pub struct KeepAlivePlayData {
     id: Long,
 }
@@ -172,3 +194,5 @@ impl WithReply for KeepAlivePlayData {
         }
     }
 }
+
+// -- KeepAliveplayData end --
