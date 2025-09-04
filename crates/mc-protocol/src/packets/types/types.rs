@@ -25,7 +25,7 @@ pub struct VarInt(pub Int);
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct VarLong(pub Long);
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct PrefixedArray<T: Encode + Decode> {
+pub struct PrefixedArray<T> {
     pub length: VarInt,
     pub data: Vec<T>,
 }

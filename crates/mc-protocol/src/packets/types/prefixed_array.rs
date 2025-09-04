@@ -2,7 +2,7 @@ use std::io::Read;
 
 use crate::packets::types::types::{Decode, DecodeError, Encode, EncodeError, PrefixedArray, VarInt};
 
-impl<T: Encode + Decode> Encode for PrefixedArray<T> {
+impl<T: Encode> Encode for PrefixedArray<T> {
     fn encode(&self, writer: &mut Vec<u8>) -> Result<(), EncodeError> {
         VarInt(self.data.len() as i32).encode(writer)?;
 
@@ -14,7 +14,7 @@ impl<T: Encode + Decode> Encode for PrefixedArray<T> {
     }
 }
 
-impl<T: Encode + Decode> Decode for PrefixedArray<T> {
+impl<T: Decode> Decode for PrefixedArray<T> {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
         let length = VarInt::decode(reader)?;
         let len_usize = length.0 as usize;
