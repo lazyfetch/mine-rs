@@ -1,5 +1,7 @@
 use std::io::Cursor;
 use std::io::Read;
+use crate::packets::decode;
+use crate::packets::decode::decode_packet;
 use crate::types::MasterHandlers;
 use crate::types::RegistriesMap;
 
@@ -64,21 +66,7 @@ impl Client {
                 let packet_data_end = end_of_packet_pos as usize;
                 let packet_data = &cursor.get_ref()[packet_data_start..packet_data_end];
                 let mut packet_cursor = Cursor::new(packet_data);
-                let uncompressed_data = if self.compression >= 0 {
-                    let data_lenght = VarInt::decode(&mut packet_cursor).unwrap(); // temp shit?
-                    if data_lenght.0 == 0 { // temp shit?
-                        let mut data = Vec::new();
-                        Read::read_to_end(&mut packet_cursor,&mut data).unwrap(); // temp shit?
-                        data
-                    } else {
-                        let mut decoder = ZlibDecoder::new(packet_cursor);
-                        let mut decompressed = Vec::new();
-                        decoder.read_to_end(&mut decompressed).unwrap(); // temp shit
-                        decompressed
-                    }
-                } else {
-                    packet_data.to_vec()
-                };
+                let uncompressed_data = decode_packet(&mut packet_cursor, self.compression).unwrap(); // temp shit
                 let mut data_cursor = Cursor::new(&uncompressed_data);
                 let packet_id = VarInt::decode(&mut data_cursor).unwrap(); // temp shit?
                 let id = PlayClientboundPacketId::try_from(packet_id.0).unwrap();
