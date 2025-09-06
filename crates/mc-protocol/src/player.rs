@@ -22,3 +22,11 @@ pub struct Player {
 
     pub on_ground: Boolean, // dont sure its need here, todo temp
 }
+
+// absolutely shitcode, i shouldn't link mc-protocol and mc-client, but... i just want to run the code.
+// It would be good to make player_storage and wrap it (i mean wrap player struct in player_storage struct), but okay, temp.
+impl Player {
+    pub fn get_mut_player(&mut self, _key: i32) -> Option<&mut Player> {
+        Some(self)
+    }
+}

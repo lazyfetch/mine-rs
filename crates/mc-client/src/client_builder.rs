@@ -29,7 +29,7 @@ impl ClientBuilder {
             port:        DEFAULT_SERVER_PORT,
             username:    DEFAULT_USERNAME.to_string(),
             compression: DEFAULT_COMPRESSION_THRESHOLD,
-            state:       State::Login,
+            state:       State::Handshake,
             master_handlers: HashMap::new(),
             registries: HashMap::new(),
         }

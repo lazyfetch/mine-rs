@@ -59,6 +59,13 @@ pub enum ConfigureServerboundPacketId {
     CustomClickAction = 0x08,
 }
 
+pub struct AcknowledgeFinishConfiguration;
+
+impl Packet for AcknowledgeFinishConfiguration {
+    type Id = ConfigureServerboundPacketId;
+    const ID: Self::Id = ConfigureServerboundPacketId::AcknowledgeFinishConfiguration;
+}
+
 // -- Configure end
 
 // -- Play -- 

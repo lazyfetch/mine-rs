@@ -1,13 +1,13 @@
 use std::io::Cursor;
 use std::io::Read;
-use crate::packets::decode;
+use crate::handle;
+use crate::handle::handle::Handle;
 use crate::packets::decode::decode_packet;
 use crate::types::MasterHandlers;
 use crate::types::RegistriesMap;
 
 use super::ClientBuilder;
 use super::State;
-use flate2::bufread::ZlibDecoder;
 use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId;
 use mc_protocol::packets::types::types::Decode;
 use mc_protocol::packets::types::types::VarInt;
@@ -28,14 +28,11 @@ impl Client {
         ClientBuilder::new()
     }
 
-    pub async fn run(&mut self) {
-        // loop, parse package id -> match -> ...
-        // this function will start the parse of clientbound packets
-        // tokio::spawn(self.parse());
-        /* some temp buffer, o 
-        loop {
-
-        } */
+    pub async fn run(&mut self) -> (&mut Self, Handle){
+        let handle = Handle::new();
+        
+        
+        (self, handle)
     }
     
     // this all look like shit...
@@ -73,9 +70,10 @@ impl Client {
                 let res = self.master_handlers.get_mut(&id);
                 let mut raw_data = Vec::new(); // shit temp
                 Read::read_to_end(&mut data_cursor,&mut raw_data); // temp shit
+                
                 match res {
                     Some(closure) => {
-                        (closure)(&mut self.registries, &raw_data[..]) 
+                        (closure.as_mut())(&mut self.registries, &raw_data[..]) 
                     }
                     None => {}
                 }

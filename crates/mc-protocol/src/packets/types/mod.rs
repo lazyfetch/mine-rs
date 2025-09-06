@@ -10,3 +10,5 @@ pub mod ushort;
 pub mod double;
 pub mod uuid;
 pub mod long;
+pub mod float;
+pub mod int;

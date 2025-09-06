@@ -1,5 +1,5 @@
 use std::io::Read;
-use mc_protocol::{entity::Entity, packets::types::types::{Angle, Boolean, Decode, DecodeError, Double, Long, PrefixedArray, Short, VarInt, UUID}};
+use mc_protocol::{entity::Entity, packets::types::types::{Angle, Boolean, Decode, DecodeError, Double, Float, Int, Long, PrefixedArray, Short, StringMC, VarInt, UUID}, player::Player};
 
 use crate::{packets::{serverbound, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{RemoveEvent, SpawnEvent, WithReply}, EntityStorage};
 
@@ -152,7 +152,7 @@ impl SpawnEvent<EntityStorage> for SpawnEntityData {
 
 // -- RemoveEntitiesData --
 pub struct RemoveEntitiesData {
-    ids: PrefixedArray<VarInt>
+    pub ids: PrefixedArray<VarInt>
 }
 
 impl Parse for RemoveEntitiesData {
@@ -196,3 +196,121 @@ impl WithReply for KeepAlivePlayData {
 }
 
 // -- KeepAliveplayData end --
+
+// -- SynchronizePlayerPositionData --
+// Im not parse flag so i dont know real position and other fields for apply
+// its just example
+pub struct SynchronizePlayerPositionData {
+    teleport_id: VarInt,
+    x: Double,
+    y: Double,
+    z: Double,
+    velocity_x: Double,
+    velocity_y: Double,
+    velocity_z: Double,
+    yaw: Float, // not impl
+    pitch: Float, // not impl
+    flags: Int, // unused i think
+}
+
+impl Parse for SynchronizePlayerPositionData {
+    fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
+        Ok(SynchronizePlayerPositionData {
+            teleport_id: VarInt::decode(reader)?,
+            x: Double::decode(reader)?,
+            y: Double::decode(reader)?,
+            z: Double::decode(reader)?,
+            velocity_x: Double::decode(reader)?,
+            velocity_y: Double::decode(reader)?,
+            velocity_z: Double::decode(reader)?,
+            yaw: Float::decode(reader)?,
+            pitch: Float::decode(reader)?,
+            flags: Int::decode(reader)?,
+        })
+    }
+}
+// example
+impl ApplyEvent<Player> for SynchronizePlayerPositionData {
+    fn apply(&mut self, event: &mut Player) {
+        event.x = self.x;
+        event.y = self.y;
+        event.z = self.z;
+    }
+} 
+
+impl ProvideTargetKey for SynchronizePlayerPositionData {
+    type Key = i32; // Temp also
+
+    fn key(&self) -> Self::Key {
+        0 // Absolutely nvrmd which key we will provide, its temp shit.
+    }
+}
+// -- SynchronizePlayerPositionData end --
+
+// -- Login stage --
+
+pub struct LoginSuccessData {
+    uuid: UUID,
+    username: StringMC,
+    property: LoginSuccessPropertyData,
+}
+
+pub struct LoginSuccessPropertyData {
+    name: StringMC,
+    value: StringMC,
+    signature: Option<StringMC>,
+}
+
+impl Parse for LoginSuccessData {
+    fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
+        let uuid = UUID::decode(reader)?;
+        let username = StringMC::decode(reader)?;
+        let property = LoginSuccessPropertyData::parse(reader)?;
+        Ok(LoginSuccessData {
+            uuid: uuid,
+            username: username,
+            property: property,
+        })
+    }
+}
+
+impl Parse for LoginSuccessPropertyData {
+    fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
+        VarInt::decode(reader)?; // drop useless VarInt - length of prefixed array
+        // temp maybe?
+        
+        let name = StringMC::decode(reader)?;
+        let value = StringMC::decode(reader)?;
+
+        let opt = Boolean::decode(reader)?;
+        let signature = if opt {
+            Some(StringMC::decode(reader)?)
+        } else {
+            None
+        };
+
+        Ok(LoginSuccessPropertyData { 
+            name: name, 
+            value: value, 
+            signature: signature 
+        })
+    }
+}
+
+pub struct SetCompressionData {
+    pub threshold: VarInt,
+}
+
+// -- Login stage end --
+
+// -- Configure stage --
+pub struct FinishConfigurationData;
+
+impl WithReply for FinishConfigurationData {
+    type Reply = serverbound::AcknowledgeFinishConfigurationData;
+    
+    fn with_reply(&self) -> Self::Reply {
+        serverbound::AcknowledgeFinishConfigurationData
+    }
+}
+// -- Configure stage end --

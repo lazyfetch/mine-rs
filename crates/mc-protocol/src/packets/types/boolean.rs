@@ -5,14 +5,12 @@ use crate::packets::types::types::{Boolean, Decode, DecodeError, Encode, EncodeE
 impl Decode for Boolean {
     fn decode<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
         let mut buffer = [0u8; 1];
-        reader.read_exact(&mut buffer)?; // `?` здесь по-прежнему работает как надо!
+        reader.read_exact(&mut buffer)?;
 
         match buffer[0] {
             0x01 => Ok(true),
             0x00 => Ok(false),
-            // Любое другое значение...
             other_value => {
-                // ...это ошибка невалидных данных!
                 Err(DecodeError::InvalidValue(format!(
                     "Expected 0x00 or 0x01 for Boolean, but got {:#04x}",
                     other_value

@@ -64,7 +64,6 @@ macro_rules! handle_spawn_event {
                         if let Some(mut target) = registry.$get_target_fn(packet_data.key()) {
                             user_callback(&mut target);
                         } 
-                    
                     }
             }));
             self
