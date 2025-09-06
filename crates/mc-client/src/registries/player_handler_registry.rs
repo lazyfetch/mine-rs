@@ -28,8 +28,4 @@ impl<'a> PlayerHandlerRegistry<'a> {
         Player,
         get_mut_player,
     );
-
-    pub fn on_rotation(&mut self) -> &mut Self {
-        self
-    }
 }

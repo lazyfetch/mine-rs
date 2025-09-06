@@ -1,4 +1,4 @@
-use mc_client::{types::Registry, Client};
+use mc_client::{handle::types::Controllers, types::Registry, Client};
 
 #[tokio::main]
 async fn main(){
@@ -36,6 +36,6 @@ async fn main(){
 
     let mut client = cli.connect().await.unwrap();
 
-    client.run().await;
+    let player_handle = client.handle.player_controller();
 
 }

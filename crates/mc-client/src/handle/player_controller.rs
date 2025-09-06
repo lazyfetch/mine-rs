@@ -1,23 +1,18 @@
 use std::fmt::Error;
 
-use mc_protocol::packets::{packet_ids_sb::Handshake, types::types::{Double, PrefixedArray, VarInt}};
-use tokio::sync::mpsc::Sender;
+use mc_protocol::packets::{types::types::{Double}};
+use tokio::sync::mpsc::{self};
 
-use crate::{packets::serverbound::HandshakeData, registries::{DataBuilder}};
+use crate::{handle::Packet};
 
 
 pub struct PlayerController {
-    sender: Sender,
+    pub sender: mpsc::Sender<Packet>
 }
 
 impl PlayerController {
     pub fn r#move(x: Double, y: Double, z: Double) -> Result<(), Error> {
-        
-        // parse packets
-        
-        // send to channel
-
-        // enjoy the life :)
+        Ok(())
     }
 
     pub fn move_and_rotate() {

@@ -1,10 +1,10 @@
 use std::io::Cursor;
 use std::io::Read;
-use crate::handle;
 use crate::handle::handle::Handle;
 use crate::packets::decode::decode_packet;
 use crate::types::MasterHandlers;
 use crate::types::RegistriesMap;
+
 
 use super::ClientBuilder;
 use super::State;
@@ -12,36 +12,40 @@ use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId;
 use mc_protocol::packets::types::types::Decode;
 use mc_protocol::packets::types::types::VarInt;
 use tokio::io::AsyncReadExt;
-use tokio::net::TcpStream;
+use tokio::net::tcp::OwnedReadHalf;
+use tokio::net::tcp::OwnedWriteHalf;
 
 pub struct Client {
     pub username: String,
     pub state: State,
-    pub tcp_stream: TcpStream,
+    pub compression: i32,
+
+    pub handle: Handle,
+    pub read: OwnedReadHalf,
+
     pub master_handlers: MasterHandlers,
     pub registries: RegistriesMap,
-    pub compression: i32,
 }
 
 impl Client {
     pub fn build() -> ClientBuilder {
         ClientBuilder::new()
     }
-
+    /*
     pub async fn run(&mut self) -> (&mut Self, Handle){
-        let handle = Handle::new();
+        let handle = Handle::new(self.write);
         
         
         (self, handle)
-    }
+    }*/
     
     // this all look like shit...
-    async fn parse(&mut self) {
+    async fn read(&mut self) {
         let mut buffer = Vec::with_capacity(4096);
 
         loop {
             let mut read_buf = [0u8; 4096];
-            let bytes_read = self.tcp_stream.read(&mut read_buf).await.unwrap(); // temp shit
+            let bytes_read = self.read.read(&mut read_buf).await.unwrap(); // temp shit
             if bytes_read == 0 {
                 panic!("connection closed") // look like temp shit
             }

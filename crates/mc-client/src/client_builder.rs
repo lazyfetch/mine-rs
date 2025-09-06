@@ -1,6 +1,7 @@
 use mc_protocol::player::Player;
 use tokio::net::TcpStream; 
 use tokio::io;
+use crate::handle::handle::Handle;
 use std::collections::HashMap;
 use std::any::{TypeId};
 
@@ -57,11 +58,15 @@ impl ClientBuilder {
 
     pub async fn connect(self) -> io::Result<Client> {
         let stream = TcpStream::connect(format!("{}:{}", self.host, self.port)).await?; // temp  
+        let (read, write) = stream.into_split();
         
+        let handle = Handle::new(write);
+
         Ok(Client {
             username: self.username,
             state: self.state,
-            tcp_stream: stream,
+            read: read,
+            handle: handle,
             master_handlers: self.master_handlers,
             registries: self.registries,
             compression: self.compression,
