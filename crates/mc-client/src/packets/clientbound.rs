@@ -1,7 +1,7 @@
 use std::io::Read;
 use mc_protocol::{entity::Entity, packets::types::types::{Angle, Boolean, Decode, DecodeError, Double, Float, Int, Long, PrefixedArray, Short, StringMC, VarInt, UUID}, player::Player};
 
-use crate::{packets::{serverbound, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{RemoveEvent, SpawnEvent, WithReply}, EntityStorage};
+use crate::{packets::{serverbound, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{internal_storage::InternalStorage, RemoveEvent, SpawnEvent, WithReply}, EntityStorage};
 
 
 // -- EntityMoveData --
@@ -306,6 +306,11 @@ pub struct SetCompressionData {
 // -- Configure stage --
 pub struct FinishConfigurationData;
 
+impl Parse for FinishConfigurationData {
+    fn parse<R: Read>(_reader: &mut R) -> Result<Self, DecodeError> {
+        Ok(FinishConfigurationData)
+    }
+}
 impl WithReply for FinishConfigurationData {
     type Reply = serverbound::AcknowledgeFinishConfigurationData;
     

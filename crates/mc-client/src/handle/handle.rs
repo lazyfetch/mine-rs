@@ -24,7 +24,7 @@ impl Handle {
 
         while let Some(packet) = self.receiver.recv().await {
             println!("[Handle]: packet {:?}, send to TCP...", packet);
-            self.stream.write_all(&packet).await;
+            self.stream.write_all(&packet).await.unwrap(); // temp
         }
         
         println!("[Handle]: channel closed");

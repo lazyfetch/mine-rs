@@ -81,28 +81,34 @@ macro_rules! handle_with_reply_event {
     (
         $fn_name:ident,
         $packet_id:expr,
-        $handler:ident
+        $handler:ident,
+        $registry_type:ty,
         $packet_data_type:ty, 
-        $reply_packet_builder:ty 
+        $reply_packet_builder:ty, 
     ) => {
-        pub fn $fn_name<F>(&mut self, mut user_callback: F) -> &mut Self
+        pub async fn $fn_name<F>(&mut self, mut user_callback: F) -> &mut Self
         where
-            $packet_data_type: Parse + GenerateReply,
-            <$packet_data_type as GenerateReply>::Reply: Sized, 
-            $reply_packet_builder: DataBuilder<Data = <$packet_data_type as GenerateReply>::Reply>,
+            $packet_data_type: Parse + WithReply,
+            <$packet_data_type as WithReply>::Reply: Sized, 
+            $reply_packet_builder: DataBuilder<Data = <$packet_data_type as WithReply>::Reply>,
             F: Fn(&$packet_data_type) + 'static
         {
-            self.$handler.insert($packet_id, Box::new(move |registries, writer, raw_bytes| {
+            let sender = self.sender.clone();
+
+            self.$handler.insert($packet_id, Box::new(move |_registries, raw_bytes| {
 
                 let mut reader = Cursor::new(raw_bytes);
                 let packet_data = <$packet_data_type>::parse(&mut reader).unwrap(); // temp
-                let reply_data = packet_data.generate_reply();
-
+                let reply_data = packet_data.with_reply();
+                let sender_clone = sender.clone();
                 if let Ok(reply_bytes) = <$reply_packet_builder>::build(reply_data) {
-                    writer.send(reply_bytes).unwrap(); 
-                }
+                    tokio::spawn(async move {
+                        if let Err(e) = sender_clone.send(reply_bytes).await {
+                            eprintln!("Failed, {}", e);
+                        }
+                    });
+                } 
                 (user_callback)(&packet_data);
-
             }));
             self
         }

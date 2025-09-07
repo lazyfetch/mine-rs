@@ -3,8 +3,10 @@ use std::io::Cursor;
 use std::io::Read;
 use crate::handle::handle::Handle;
 use crate::packets::decode::decode_packet;
+use crate::registries::internal_handler_registry::InternalHandlerRegistry;
 use crate::registries::internal_storage::CurrentHandlers;
 use crate::registries::internal_storage::InternalStorage;
+use crate::types::Internal;
 use crate::types::RegistriesMap;
 
 
@@ -26,6 +28,31 @@ pub struct Client {
     pub handle: Handle,
     pub read: OwnedReadHalf,
     pub registries: RegistriesMap,
+}
+
+// its be
+impl Internal for Client {
+        fn internal(&mut self) -> InternalHandlerRegistry {
+        // add
+        self.registries
+            .entry(TypeId::of::<InternalStorage>())
+            .or_insert_with(|| Box::new(InternalStorage::new(self.handle.sender.clone())));
+
+        // take 
+        let internal_storage = self.registries
+            .get_mut(&TypeId::of::<InternalStorage>()).unwrap()
+            .downcast_mut::<InternalStorage>().unwrap();
+        
+        let sender = self.handle.sender.clone();
+
+        // register
+        InternalHandlerRegistry::new(
+            &mut internal_storage.login_handlers, 
+            &mut internal_storage.configurate_handlers, 
+            &mut internal_storage.play_handlers,
+            sender,
+            )
+    }
 }
 
 impl Client {
@@ -78,7 +105,7 @@ impl Client {
                         .get_mut(&TypeId::of::<InternalStorage>())
                         .and_then(|any| any.downcast_mut::<InternalStorage>()) 
                     {
-                        match storage.current_state() {
+                        match storage.current_state_mut() {
                             CurrentHandlers::Login(login_handlers) => {
                                 if let Ok(login_packet_id) = LoginClientboundPacketId::try_from(packet_id.0) {
                                     login_handlers.remove(&login_packet_id)
@@ -112,7 +139,7 @@ impl Client {
                         .get_mut(&TypeId::of::<InternalStorage>())
                         .and_then(|any| any.downcast_mut::<InternalStorage>()) 
                     {
-                        match storage.current_state() {
+                        match storage.current_state_mut() {
                             CurrentHandlers::Login(login_handlers) => {
                                 if let Ok(login_packet_id) = LoginClientboundPacketId::try_from(packet_id.0) {
                                     login_handlers.insert(login_packet_id, handler);

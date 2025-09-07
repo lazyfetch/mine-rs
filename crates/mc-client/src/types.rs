@@ -21,5 +21,9 @@ pub type ConfigureHandlers = HashMap<ConfigureClientboundPacketId, Handler>;
 pub trait Registry {
     fn entities(&mut self) -> EntityHandlerRegistry;
     fn player(&mut self) -> PlayerHandlerRegistry; 
+    // fn internal(&mut self) -> InternalHandlerRegistry;
+}
+
+pub trait Internal {
     fn internal(&mut self) -> InternalHandlerRegistry;
 }

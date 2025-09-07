@@ -75,24 +75,6 @@ impl ClientBuilder {
 
 impl Registry for ClientBuilder {
 
-    fn internal(&mut self) -> InternalHandlerRegistry {
-        // add
-        self.registries
-            .entry(TypeId::of::<InternalStorage>())
-            .or_insert_with(|| Box::new(InternalStorage::new()));
-
-        // take 
-        let internal_storage = self.registries
-            .get_mut(&TypeId::of::<InternalStorage>()).unwrap()
-            .downcast_mut::<InternalStorage>().unwrap();
-        
-        // register
-        InternalHandlerRegistry::new(
-            &mut internal_storage.login_handlers, 
-            &mut internal_storage.configurate_handlers, 
-            &mut internal_storage.play_handlers)
-    }
-
     fn entities(&mut self) -> EntityHandlerRegistry {
         // add
         self.registries
