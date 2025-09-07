@@ -2,11 +2,13 @@ use mc_protocol::player::Player;
 use tokio::net::TcpStream; 
 use tokio::io;
 use crate::handle::handle::Handle;
+use crate::registries::internal_handler_registry::InternalHandlerRegistry;
+use crate::registries::internal_storage::InternalStorage;
 use std::collections::HashMap;
 use std::any::{TypeId};
 
 use crate::registries::entity_handler_registry::EntityHandlerRegistry;
-use crate::types::{MasterHandlers, RegistriesMap, Registry};
+use crate::types::{RegistriesMap, Registry};
 use crate::{EntityStorage, PlayerHandlerRegistry, State};
 
 use super::config::*;
@@ -18,7 +20,6 @@ pub struct ClientBuilder {
     username: String,
     compression: i32,
     state: State,
-    master_handlers: MasterHandlers,
     registries: RegistriesMap,
 }
 
@@ -30,8 +31,7 @@ impl ClientBuilder {
             port:        DEFAULT_SERVER_PORT,
             username:    DEFAULT_USERNAME.to_string(),
             compression: DEFAULT_COMPRESSION_THRESHOLD,
-            state:       State::Handshake,
-            master_handlers: HashMap::new(),
+            state:       State::Login,
             registries: HashMap::new(),
         }
     }
@@ -80,15 +80,32 @@ impl Registry for ClientBuilder {
             .entry(TypeId::of::<EntityStorage>())
             .or_insert_with(|| Box::new(EntityStorage::default()));
 
-        EntityHandlerRegistry::new(&mut self.master_handlers)
+        let internal_storage = self.registries
+            .get_mut(&TypeId::of::<InternalStorage>()).unwrap()
+            .downcast_mut::<InternalStorage>().unwrap();
+
+        let play_handlers = &mut internal_storage.play_handlers;
+        
+        EntityHandlerRegistry::new(play_handlers)
     }
 
     fn player(&mut self) -> PlayerHandlerRegistry {
-        // im not sure its right, temp
         self.registries
             .entry(TypeId::of::<Player>())
             .or_insert_with(|| Box::new(Player::default()));
 
-        PlayerHandlerRegistry::new(&mut self.master_handlers)
+        let internal_storage = self.registries
+            .get_mut(&TypeId::of::<InternalStorage>()).unwrap()
+            .downcast_mut::<InternalStorage>().unwrap();
+
+        let play_handlers = &mut internal_storage.play_handlers;
+
+        PlayerHandlerRegistry::new(play_handlers)
+    }
+
+    fn internal(&mut self) -> InternalHandlerRegistry {
+        self.registries
+            .entry(TypeId::of::<InternalStorage>())
+            .or_insert_with(|| Box::new(InternalStorage::new()));
     }
 }

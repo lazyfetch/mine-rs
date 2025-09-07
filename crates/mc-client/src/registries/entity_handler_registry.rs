@@ -4,7 +4,7 @@ use crate::packets::types::RemoveEvent;
 
 use crate::packets::types::{Parse, ProvideTargetKey, ApplyEvent};
 use crate::packets::clientbound::{EntityMoveData, RemoveEntitiesData, SpawnEntityData};
-use crate::types::MasterHandlers;
+use crate::types::PlayHandlers;
 use crate::{handle_apply_event, handle_remove_event, handle_spawn_event, EntityStorage};
 use crate::packets::types::SpawnEvent;
 
@@ -18,20 +18,21 @@ use std::io::Cursor;
 // and put it into ./types.rs, think about it man
 
 pub struct EntityHandlerRegistry<'a> {
-    pub master_handlers: &'a mut MasterHandlers,
+    pub play_handlers: &'a mut PlayHandlers,
 }
 
 impl<'a> EntityHandlerRegistry<'a> {
 
-    pub fn new(master_handlers: &'a mut MasterHandlers) -> Self {
+    pub fn new(play_handlers: &'a mut PlayHandlers) -> Self {
         EntityHandlerRegistry {
-            master_handlers,
+            play_handlers,
         }
     }
 
     handle_apply_event!(
         on_move,
         UpdateEntityPosition,
+        play_handlers,
         EntityStorage,
         EntityMoveData,
         Entity,
@@ -41,6 +42,7 @@ impl<'a> EntityHandlerRegistry<'a> {
     handle_spawn_event!(
         on_spawn,
         SpawnEntity,
+        play_handlers,
         EntityStorage,
         SpawnEntityData,
         Entity,
@@ -50,6 +52,7 @@ impl<'a> EntityHandlerRegistry<'a> {
     handle_remove_event!(
         on_remove,
         RemoveEntities,
+        play_handlers,
         EntityStorage,
         RemoveEntitiesData,
     );

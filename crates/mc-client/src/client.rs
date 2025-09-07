@@ -2,7 +2,7 @@ use std::io::Cursor;
 use std::io::Read;
 use crate::handle::handle::Handle;
 use crate::packets::decode::decode_packet;
-use crate::types::MasterHandlers;
+use crate::types::PlayHandlers;
 use crate::types::RegistriesMap;
 
 
@@ -13,7 +13,6 @@ use mc_protocol::packets::types::types::Decode;
 use mc_protocol::packets::types::types::VarInt;
 use tokio::io::AsyncReadExt;
 use tokio::net::tcp::OwnedReadHalf;
-use tokio::net::tcp::OwnedWriteHalf;
 
 pub struct Client {
     pub username: String,
@@ -22,8 +21,6 @@ pub struct Client {
 
     pub handle: Handle,
     pub read: OwnedReadHalf,
-
-    pub master_handlers: MasterHandlers,
     pub registries: RegistriesMap,
 }
 
