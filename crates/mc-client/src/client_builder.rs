@@ -67,7 +67,6 @@ impl ClientBuilder {
             state: self.state,
             read: read,
             handle: handle,
-            master_handlers: self.master_handlers,
             registries: self.registries,
             compression: self.compression,
         })
@@ -75,37 +74,56 @@ impl ClientBuilder {
 }
 
 impl Registry for ClientBuilder {
+
+    fn internal(&mut self) -> InternalHandlerRegistry {
+        // add
+        self.registries
+            .entry(TypeId::of::<InternalStorage>())
+            .or_insert_with(|| Box::new(InternalStorage::new()));
+
+        // take 
+        let internal_storage = self.registries
+            .get_mut(&TypeId::of::<InternalStorage>()).unwrap()
+            .downcast_mut::<InternalStorage>().unwrap();
+        
+        // register
+        InternalHandlerRegistry::new(
+            &mut internal_storage.login_handlers, 
+            &mut internal_storage.configurate_handlers, 
+            &mut internal_storage.play_handlers)
+    }
+
     fn entities(&mut self) -> EntityHandlerRegistry {
+        // add
         self.registries
             .entry(TypeId::of::<EntityStorage>())
             .or_insert_with(|| Box::new(EntityStorage::default()));
 
+        // take
         let internal_storage = self.registries
             .get_mut(&TypeId::of::<InternalStorage>()).unwrap()
             .downcast_mut::<InternalStorage>().unwrap();
 
+        // register
         let play_handlers = &mut internal_storage.play_handlers;
         
         EntityHandlerRegistry::new(play_handlers)
     }
 
     fn player(&mut self) -> PlayerHandlerRegistry {
+        // add
         self.registries
             .entry(TypeId::of::<Player>())
             .or_insert_with(|| Box::new(Player::default()));
 
+        // take
         let internal_storage = self.registries
             .get_mut(&TypeId::of::<InternalStorage>()).unwrap()
             .downcast_mut::<InternalStorage>().unwrap();
 
+        // register
         let play_handlers = &mut internal_storage.play_handlers;
 
         PlayerHandlerRegistry::new(play_handlers)
-    }
-
-    fn internal(&mut self) -> InternalHandlerRegistry {
-        self.registries
-            .entry(TypeId::of::<InternalStorage>())
-            .or_insert_with(|| Box::new(InternalStorage::new()));
     }
 }

@@ -1,13 +1,17 @@
+use std::any::TypeId;
 use std::io::Cursor;
 use std::io::Read;
 use crate::handle::handle::Handle;
 use crate::packets::decode::decode_packet;
-use crate::types::PlayHandlers;
+use crate::registries::internal_storage::CurrentHandlers;
+use crate::registries::internal_storage::InternalStorage;
 use crate::types::RegistriesMap;
 
 
 use super::ClientBuilder;
 use super::State;
+use mc_protocol::packets::packet_ids_cb::ConfigureClientboundPacketId;
+use mc_protocol::packets::packet_ids_cb::LoginClientboundPacketId;
 use mc_protocol::packets::packet_ids_cb::PlayClientboundPacketId;
 use mc_protocol::packets::types::types::Decode;
 use mc_protocol::packets::types::types::VarInt;
@@ -67,17 +71,39 @@ impl Client {
                 let uncompressed_data = decode_packet(&mut packet_cursor, self.compression).unwrap(); // temp shit
                 let mut data_cursor = Cursor::new(&uncompressed_data);
                 let packet_id = VarInt::decode(&mut data_cursor).unwrap(); // temp shit?
-                let id = PlayClientboundPacketId::try_from(packet_id.0).unwrap();
-                let res = self.master_handlers.get_mut(&id);
                 let mut raw_data = Vec::new(); // shit temp
-                Read::read_to_end(&mut data_cursor,&mut raw_data); // temp shit
-                
-                match res {
-                    Some(closure) => {
-                        (closure.as_mut())(&mut self.registries, &raw_data[..]) 
+                Read::read_to_end(&mut data_cursor,&mut raw_data).unwrap(); // temp shit
+                if let Some(storage) = self.registries.get_mut(&TypeId::of::<InternalStorage>()).
+                    and_then(|any| any.downcast_mut::<InternalStorage>()) {
+                        let state_enum = storage.current_state();
+                        match state_enum {
+                            CurrentHandlers::Login(login_handlers) => {
+                                if let Ok(login_packet_id) = LoginClientboundPacketId::try_from(packet_id.0) {
+                                    if let Some(mut handler) = login_handlers.remove(&login_packet_id) {
+                                        (handler.as_mut())(&mut self.registries, &raw_data[..]);
+                                        login_handlers.insert(login_packet_id, handler);
+                                    }
+                                }
+                            }
+                            CurrentHandlers::Configure(config_handlers) => {
+                                if let Ok(config_packet_id) = ConfigureClientboundPacketId::try_from(packet_id.0) {
+                                    if let Some(mut handler) = config_handlers.remove(&config_packet_id) {
+                                        (handler.as_mut())(&mut self.registries, &raw_data[..]);
+                                    }
+                                }
+                            }
+                            CurrentHandlers::Play(play_handlers) => {
+                                if let Ok(play_packet_id) = PlayClientboundPacketId::try_from(packet_id.0) {
+                                    if let Some(mut handler) = play_handlers.remove(&play_packet_id) {
+                                        (handler.as_mut())(&mut self.registries, &raw_data[..]);
+                                    }
+                                }
+                            }
+                        }
                     }
-                    None => {}
-                }
+                Read::read_to_end(&mut data_cursor,&mut raw_data).unwrap(); // temp shit
+                
+
                 cursor.set_position(end_of_packet_pos as u64);
             }
             let bytes_processed = cursor.position() as usize;
