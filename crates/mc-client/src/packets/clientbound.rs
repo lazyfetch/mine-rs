@@ -1,8 +1,8 @@
 use std::io::Read;
-use mc_protocol::{entity::Entity, packets::types::types::{Angle, Boolean, Decode, DecodeError, Double, Float, Int, Long, PrefixedArray, Short, StringMC, VarInt, UUID}, player::Player};
+use mc_protocol::{entity::Entity, packets::{packet_ids_sb::LoginAcknowledged, types::types::{Angle, Boolean, Decode, DecodeError, Double, Float, Int, Long, PrefixedArray, Short, StringMC, VarInt, UUID}}, player::Player};
 
-use crate::{packets::{serverbound, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{internal_storage::InternalStorage, RemoveEvent, SpawnEvent, WithReply}, EntityStorage};
-
+use crate::{packets::{serverbound::{self, LoginAcknowledgedData}, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{internal_storage::InternalStorage, DataBuilder, RemoveEvent, SpawnEvent, WithReply}, EntityStorage};
+use crate::State::Configure;
 
 // -- EntityMoveData --
 pub struct EntityMoveData {
@@ -294,6 +294,18 @@ impl Parse for LoginSuccessPropertyData {
             value: value, 
             signature: signature 
         })
+    }
+}
+
+impl ApplyEvent<InternalStorage> for LoginSuccessData {
+    fn apply(&mut self, event: &mut InternalStorage) {
+        // Change state,
+        event.state = Configure;
+        
+        // send to channel package
+        let packet = LoginAcknowledgedData;
+        let payload = LoginAcknowledged::build(packet).unwrap(); // temp
+
     }
 }
 

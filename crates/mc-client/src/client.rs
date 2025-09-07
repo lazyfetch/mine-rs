@@ -68,7 +68,7 @@ impl Client {
     }*/
     
     // this all look like shit...
-    async fn read(&mut self) {
+    pub async fn read(&mut self) {
         let mut buffer = Vec::with_capacity(4096);
 
         loop {

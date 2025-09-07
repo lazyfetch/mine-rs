@@ -1,10 +1,27 @@
 use tokio::sync::mpsc::Sender;
-use crate::packets::types::DataBuilder;
-use crate::packets::types::WithReply;
+use crate::handle_stateful_event;
+use std::any::TypeId;
+use crate::packets::clientbound::LoginSuccessData;
+use crate::packets::types::{
+    DataBuilder, 
+    WithReply, 
+    ApplyEvent};
+use crate::registries::internal_storage::InternalStorage;
 use std::io::Cursor;
 use crate::packets::types::{Parse};
-use crate::{handle::Packet, handle_with_reply_event, packets::clientbound::FinishConfigurationData, registries::internal_storage::InternalStorage, types::{ConfigureHandlers, LoginHandlers, PlayHandlers}};
-use mc_protocol::packets::{packet_ids_cb::ConfigureClientboundPacketId::FinishConfiguration, packet_ids_sb::AcknowledgeFinishConfiguration};
+use crate::{
+    handle::Packet, 
+    handle_with_reply_event, 
+    packets::clientbound::FinishConfigurationData, 
+    types::{
+        ConfigureHandlers, 
+        LoginHandlers, 
+        PlayHandlers}};
+use mc_protocol::packets::{
+    packet_ids_cb::ConfigureClientboundPacketId::FinishConfiguration,
+    packet_ids_cb::LoginClientboundPacketId::LoginSuccess, 
+    packet_ids_sb::AcknowledgeFinishConfiguration
+};
 pub struct InternalHandlerRegistry<'a> {
     pub login_handlers: &'a mut LoginHandlers,
     pub configure_handlers: &'a mut ConfigureHandlers,
@@ -27,17 +44,35 @@ impl <'a>InternalHandlerRegistry<'a>  {
         }
     }
     
-    fn bootstrap_init(&mut self) {
-        // add all packet for handshake-
+    pub fn bootstrap(&mut self) {
+        self.bootstrap_init();
+
+        // handshake packet
+
+        // login packet
+
+        // LETS FUCKING GOOOOOO!!!!!!!
     }
+    
+    fn bootstrap_init(&mut self) {
+        self.login_success(|| {});
+        self.finish_configuration(|_|{});
+    }
+
     handle_with_reply_event!(
-        configure_finish,
+        finish_configuration,
         FinishConfiguration,
         configure_handlers,
-        InternalStorage,
         FinishConfigurationData,
         AcknowledgeFinishConfiguration,
     );
+
+    handle_stateful_event!(
+        login_success,
+        LoginSuccess,
+        login_handlers,
+        InternalStorage,
+        LoginSuccessData,
+    );
     
-    pub fn bootstrap(&mut self) {}
 }

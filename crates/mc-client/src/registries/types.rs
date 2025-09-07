@@ -12,7 +12,7 @@ macro_rules! handle_apply_event {
         pub fn $fn_name<F>(&mut self, user_callback: F) -> &mut Self 
         where
             $packet_data_type: Parse + ProvideTargetKey + ApplyEvent<$target_type>,
-            F: Fn(&mut $target_type) + 'static
+            F: Fn(&$target_type) + 'static
         {
             self.$handler.insert($packet_id, Box::new(move |registries, raw_bytes| {
                     
@@ -52,7 +52,7 @@ macro_rules! handle_spawn_event {
         pub fn $fn_name<F>(&mut self, user_callback: F) -> &mut Self
         where
             $packet_data_type: Parse + ProvideTargetKey + SpawnEvent<$registry_type>,
-            F: Fn(&mut $target_type) + 'static
+            F: Fn(&$target_type) + 'static
         {
             self.$handler.insert($packet_id, Box::new(move |registries, raw_bytes| {
 
@@ -82,11 +82,10 @@ macro_rules! handle_with_reply_event {
         $fn_name:ident,
         $packet_id:expr,
         $handler:ident,
-        $registry_type:ty,
         $packet_data_type:ty, 
         $reply_packet_builder:ty, 
     ) => {
-        pub async fn $fn_name<F>(&mut self, mut user_callback: F) -> &mut Self
+        pub fn $fn_name<F>(&mut self, user_callback: F) -> &mut Self
         where
             $packet_data_type: Parse + WithReply,
             <$packet_data_type as WithReply>::Reply: Sized, 
@@ -139,6 +138,42 @@ macro_rules! handle_remove_event {
                         packet_data.remove(registry);
 
                         (user_callback)(&packet_data);
+                    }
+            }));
+            self
+        }
+    };
+}
+
+// Maybe hardcode InternalStorage???
+#[macro_export]
+macro_rules! handle_stateful_event {
+    (
+        $fn_name:ident,
+        $packet_id:expr,
+        $handler:ident,
+        $registry_type:ty,
+        $packet_data_type:ty,
+    ) => {
+        pub fn $fn_name<F>(&mut self, user_callback: F) -> &mut Self 
+        where
+            $packet_data_type: Parse + ApplyEvent<$registry_type>,
+            F: Fn() + 'static
+        {
+            self.$handler.insert($packet_id, Box::new(move |registries, raw_bytes| {
+                    
+                // parse data
+                let mut reader = Cursor::new(raw_bytes);
+                let mut packet_data = <$packet_data_type>::parse(&mut reader).unwrap(); // temp shit
+
+                // find registry
+                if let Some(mut registry) = registries.get_mut(&TypeId::of::<$registry_type>())
+                    .and_then(|any| any.downcast_mut::<$registry_type>()) {
+                            // apply
+                            packet_data.apply(&mut registry);
+
+                            // user callback
+                            (user_callback)()
                     }
             }));
             self
