@@ -59,13 +59,13 @@ impl ClientBuilder {
         let stream = TcpStream::connect(format!("{}:{}", self.host, self.port)).await?; // temp  
         let (read, write) = stream.into_split();
         
-        let handle = Handle::new(write);
+        let sender = Handle::new(write);
 
         Ok(Client {
             username: self.username,
             state: self.state,
             read: read,
-            handle: handle,
+            sender: sender,
             registries: self.registries,
             compression: self.compression,
         })

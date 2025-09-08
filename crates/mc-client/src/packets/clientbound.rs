@@ -300,7 +300,7 @@ impl Parse for LoginSuccessPropertyData {
 impl ApplyEvent<InternalStorage> for LoginSuccessData {
     fn apply(&mut self, event: &mut InternalStorage) {
         // Change state, 100% thread safe, cuz its synchonous
-        event.state = Configure;
+        event.state = crate::State::Play;
         let sender = event.sender.clone();
         // send to channel package
         let packet_data = LoginAcknowledgedData;

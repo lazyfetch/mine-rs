@@ -5,10 +5,10 @@ use num_enum::TryFromPrimitive;
 pub enum LoginClientboundPacketId {
     Disconnect = 0x00,
     EncryptionRequest = 0x01,
-    LoginSuccess = 0x02,
+    LoginSuccess = 0x04,
     SetCompression = 0x03,
-    LoginPluginRequest = 0x04,
-    CookieRequest = 0x05,
+    //LoginPluginRequest = 0x04,
+    //CookieRequest = 0x05,
 }
 
 #[derive(Debug, Eq, PartialEq, Hash, TryFromPrimitive)]
@@ -18,7 +18,7 @@ pub enum ConfigureClientboundPacketId {
     PluginMessage = 0x01,
     Disconnect = 0x02,
     FinishConfiguration = 0x03,
-    KeepAlive = 0x04,
+    KeepAlive = 0x23,
     Ping = 0x05,
     ResetChat = 0x06,
     RegistryData = 0x07,
@@ -71,10 +71,10 @@ pub enum PlayClientboundPacketId {
     Explosion = 0x20,
     UnloadChunk = 0x21,
     GameEvent = 0x22,
-    OpenHorseScreen = 0x23,
+    //OpenHorseScreen = 0x23,
     HurtAnimation = 0x24,
     InitializeWorldBorder = 0x25,
-    KeepAlive = 0x26,
+    KeepAlive = 0x23, // temp test
     ChunkDataAndUpdateLight = 0x27,
     WorldEvent = 0x28,
     Particle = 0x29,

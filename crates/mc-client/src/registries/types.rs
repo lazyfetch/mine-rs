@@ -12,7 +12,7 @@ macro_rules! handle_apply_event {
         pub fn $fn_name<F>(&mut self, user_callback: F) -> &mut Self 
         where
             $packet_data_type: Parse + ProvideTargetKey + ApplyEvent<$target_type>,
-            F: Fn(&$target_type) + 'static
+            F: Fn(&$target_type) + Send + 'static
         {
             self.$handler.insert($packet_id, Box::new(move |registries, raw_bytes| {
                     
@@ -52,7 +52,7 @@ macro_rules! handle_spawn_event {
         pub fn $fn_name<F>(&mut self, user_callback: F) -> &mut Self
         where
             $packet_data_type: Parse + ProvideTargetKey + SpawnEvent<$registry_type>,
-            F: Fn(&$target_type) + 'static
+            F: Fn(&$target_type) + Send + 'static
         {
             self.$handler.insert($packet_id, Box::new(move |registries, raw_bytes| {
 
@@ -87,7 +87,7 @@ macro_rules! handle_with_reply_event {
             $packet_data_type: Parse + WithReply,
             <$packet_data_type as WithReply>::Reply: Sized, 
             $reply_packet_builder: DataBuilder<Data = <$packet_data_type as WithReply>::Reply>,
-            F: Fn(&$packet_data_type) + 'static
+            F: Fn(&$packet_data_type) + Send + 'static
         {
             let sender = self.sender.clone();
 
@@ -124,7 +124,7 @@ macro_rules! handle_remove_event {
         pub fn $fn_name<F>(&mut self, user_callback: F) -> &mut Self 
         where
             $packet_data_type: Parse + $crate::packets::types::RemoveEvent<$registry_type>,
-            F: Fn(&$packet_data_type) + 'static
+            F: Fn(&$packet_data_type) + Send + 'static
         {
             self.$handler.insert($packet_id, Box::new(move |registries, raw_bytes| {
 
@@ -156,10 +156,10 @@ macro_rules! handle_stateful_event {
         pub fn $fn_name<F>(&mut self, user_callback: F) -> &mut Self 
         where
             $packet_data_type: Parse + ApplyEvent<$registry_type>,
-            F: Fn() + 'static
+            F: Fn() + Send + 'static
         {
             self.$handler.insert($packet_id, Box::new(move |registries, raw_bytes| {
-                    
+                println!("{:?}", raw_bytes);
                 // parse data
                 let mut reader = Cursor::new(raw_bytes);
                 let mut packet_data = <$packet_data_type>::parse(&mut reader).unwrap(); // temp shit

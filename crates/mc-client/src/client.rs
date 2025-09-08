@@ -2,6 +2,7 @@ use std::any::TypeId;
 use std::io::Cursor;
 use std::io::Read;
 use crate::handle::handle::Handle;
+use crate::handle::Packet;
 use crate::packets::decode::decode_packet;
 use crate::registries::internal_handler_registry::InternalHandlerRegistry;
 use crate::registries::internal_storage::CurrentHandlers;
@@ -19,13 +20,14 @@ use mc_protocol::packets::types::types::Decode;
 use mc_protocol::packets::types::types::VarInt;
 use tokio::io::AsyncReadExt;
 use tokio::net::tcp::OwnedReadHalf;
+use tokio::sync::mpsc::Sender;
 
 pub struct Client {
     pub username: String,
     pub state: State,
     pub compression: i32,
 
-    pub handle: Handle,
+    pub sender: Sender<Packet>,
     pub read: OwnedReadHalf,
     pub registries: RegistriesMap,
 }
@@ -36,15 +38,15 @@ impl Internal for Client {
         // add
         self.registries
             .entry(TypeId::of::<InternalStorage>())
-            .or_insert_with(|| Box::new(InternalStorage::new(self.handle.sender.clone())));
+            .or_insert_with(|| Box::new(InternalStorage::new(self.sender.clone())));
 
         // take 
         let internal_storage = self.registries
             .get_mut(&TypeId::of::<InternalStorage>()).unwrap()
             .downcast_mut::<InternalStorage>().unwrap();
         
-        let sender = self.handle.sender.clone();
-
+        let sender = self.sender.clone();
+        
         // register
         InternalHandlerRegistry::new(
             &mut internal_storage.login_handlers, 
@@ -55,22 +57,17 @@ impl Internal for Client {
     }
 }
 
+
 impl Client {
     pub fn build() -> ClientBuilder {
         ClientBuilder::new()
     }
-    /*
-    pub async fn run(&mut self) -> (&mut Self, Handle){
-        let handle = Handle::new(self.write);
-        
-        
-        (self, handle)
-    }*/
-    
+
     // this all look like shit...
     pub async fn read(&mut self) {
         let mut buffer = Vec::with_capacity(4096);
-
+        // temp shit
+        let counter = 0;
         loop {
             let mut read_buf = [0u8; 4096];
             let bytes_read = self.read.read(&mut read_buf).await.unwrap(); // temp shit
@@ -86,6 +83,7 @@ impl Client {
                     Ok(len) => len,
                     Err(_) => break 'parse, // not enought len
                 };
+                // println!("RAW BUFFER FROM NETWORK: {:?}", &read_buf);
                 let end_of_packet_pos = cursor.position() as i32 + packet_length.0; // temp shit?
                 if end_of_packet_pos as u64 > buffer.len() as u64 {
                     cursor.set_position(initial_pos);
@@ -95,10 +93,16 @@ impl Client {
                 let packet_data_end = end_of_packet_pos as usize;
                 let packet_data = &cursor.get_ref()[packet_data_start..packet_data_end];
                 let mut packet_cursor = Cursor::new(packet_data);
-                let uncompressed_data = decode_packet(&mut packet_cursor, 256).unwrap(); // temp shit COMP_THOLD SHIT TEMP
+                let compression = if counter == 0 {
+                    -1
+                } else {
+                    256
+                };
+                let uncompressed_data = decode_packet(&mut packet_cursor, compression).unwrap(); // temp shit COMP_THOLD SHIT TEMP
                 let mut data_cursor = Cursor::new(&uncompressed_data);
                 let packet_id = VarInt::decode(&mut data_cursor).unwrap(); // temp shit?
                 let mut raw_data = Vec::new(); // shit temp
+
                 Read::read_to_end(&mut data_cursor, &mut raw_data).unwrap(); // temp shit
                 let handler_opt = {
                     if let Some(storage) = self.registries

@@ -14,9 +14,9 @@ use crate::registries::internal_handler_registry::InternalHandlerRegistry;
 use crate::{EntityHandlerRegistry, PlayerHandlerRegistry};
 
 
-pub type RegistriesMap = HashMap<TypeId, Box<dyn Any>>;
+pub type RegistriesMap = HashMap<TypeId, Box<dyn Any + Send>>;
 
-pub type Handler = Box<dyn FnMut(&mut RegistriesMap, &[u8]) + 'static>;
+pub type Handler = Box<dyn FnMut(&mut RegistriesMap, &[u8]) + Send + 'static>;
 
 pub type PlayHandlers = HashMap<PlayClientboundPacketId, Handler>; // temp, rewrite this dude
 pub type LoginHandlers = HashMap<LoginClientboundPacketId, Handler>;

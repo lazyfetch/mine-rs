@@ -23,7 +23,7 @@ impl InternalStorage  {
             login_handlers: LoginHandlers::new(), 
             configurate_handlers: ConfigureHandlers::new(), 
             play_handlers: PlayHandlers::new(), 
-            state: State::Login,
+            state: State::Play,
             sender: sender,
         }
     }

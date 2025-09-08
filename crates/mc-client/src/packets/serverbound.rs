@@ -1,4 +1,4 @@
-use mc_protocol::packets::{packet_ids_sb::{AcknowledgeFinishConfiguration, Handshake, KeepAliveConfigure, KeepAlivePlay, Login, LoginAcknowledged}, types::types::{Encode, EncodeError, Long, StringMC, UShort, VarInt}, Packet};
+use mc_protocol::packets::{packet_ids_sb::{AcknowledgeFinishConfiguration, Handshake, KeepAliveConfigure, KeepAlivePlay, Login, LoginAcknowledged}, types::types::{Boolean, Encode, EncodeError, Long, StringMC, UShort, VarInt}, Packet};
 
 use crate::{registries::{DataBuilder}};
 
@@ -7,6 +7,7 @@ pub struct HandshakeData {
     pub protocol_version: VarInt,
     pub server_address: StringMC,
     pub server_port: UShort,
+    pub stage: VarInt,
 }
 
 impl DataBuilder for Handshake {
@@ -18,6 +19,7 @@ impl DataBuilder for Handshake {
         data.protocol_version.encode(&mut buf)?;
         data.server_address.encode(&mut buf)?;
         data.server_port.encode(&mut buf)?;
+        data.stage.encode(&mut buf)?;
         Ok(buf)
     }
 }
@@ -26,8 +28,8 @@ impl DataBuilder for Handshake {
 // -- LoginStartData --
 pub struct LoginStartData {
     pub name: StringMC,
-    // player_uuid: UUID // unused 
-}
+    pub uuid_bool: Boolean,
+}   
 
 impl DataBuilder for Login {
     type Data = LoginStartData;
@@ -36,6 +38,7 @@ impl DataBuilder for Login {
         let mut buf: Vec<u8> = Vec::new();
         VarInt::from(Self::ID).encode(&mut buf)?;
         data.name.encode(&mut buf)?;
+        data.uuid_bool.encode(&mut buf)?;
         Ok(buf)
     }
 }

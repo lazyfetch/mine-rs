@@ -1,22 +1,26 @@
-use tokio::{io::AsyncWriteExt, sync::mpsc};
+use tokio::{io::AsyncWriteExt, sync::mpsc::{self, Sender}};
 
 use crate::handle::{player_controller::PlayerController, types::Controllers, Packet};
 
 pub struct Handle {
-    pub sender: mpsc::Sender<Packet>,
     receiver: mpsc::Receiver<Packet>,
     stream: tokio::net::tcp::OwnedWriteHalf,
 }
 
 impl Handle {
-    pub fn new(stream: tokio::net::tcp::OwnedWriteHalf) -> Handle {
+    pub fn new(stream: tokio::net::tcp::OwnedWriteHalf) -> Sender<Packet> {
         let (sender, receiver) = mpsc::channel(128);
 
-        Handle {
-            sender: sender,
+        let s = Handle {
             receiver: receiver,
             stream: stream,
-        }  
+        };
+        
+        tokio::spawn(async {
+            s.run().await;
+        });
+
+        sender
     }
 
     pub async fn run(mut self) {
@@ -40,6 +44,8 @@ impl Handle {
     }
 }
 
+// rewrite
+/*
 impl Controllers for Handle {
     fn player_controller(&mut self) -> PlayerController {
         PlayerController {
@@ -47,3 +53,4 @@ impl Controllers for Handle {
         }
     }
 }
+*/

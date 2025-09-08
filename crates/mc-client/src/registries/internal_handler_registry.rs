@@ -49,15 +49,16 @@ impl <'a>InternalHandlerRegistry<'a>  {
             sender: sender, 
         }
     }
-    
+    // NETU PORYADKA LOOL, S PERVOGO RAZA JIGUL' NE ZAVODITCA JAJAJAJAJHAHAHAHJAHJAHJAHJ
     pub fn bootstrap(&mut self) {
         self.bootstrap_init();
 
         // handshake packet temp shit whatever nvrmd
         let hs = HandshakeData {
-            protocol_version: VarInt(767),
+            protocol_version: VarInt(763),
             server_address: StringMC("localhost".to_string()),
             server_port: 25565,
+            stage: VarInt(2),
         };
         let mut payload_hs = Handshake::build(hs).unwrap();
         let packet_hs = encode::encode(&mut payload_hs, -1).unwrap();//temp
@@ -72,6 +73,7 @@ impl <'a>InternalHandlerRegistry<'a>  {
         // login packet
         let lg = LoginStartData {
             name: StringMC("superded".to_string()),
+            uuid_bool: false,
         };
         let mut payload_lg = Login::build(lg).unwrap(); // temp shiii
         let packet_lg = encode::encode(&mut payload_lg, -1).unwrap(); // temp
@@ -85,10 +87,10 @@ impl <'a>InternalHandlerRegistry<'a>  {
     }
     
     fn bootstrap_init(&mut self) {
-        self.keep_alive_configure(|_|{});
-        self.keep_alive_play(|_|{});
-        self.login_success(|| {});
-        self.finish_configuration(||{});
+        self.keep_alive_configure(|_|{ println!("------KEEP ALIVE CONFIGURE POOK------!!_!_!_!_!_!_")});
+        self.keep_alive_play(|_|{println!("------KEEP ALIVE PLAY POOK------!!_!_!_!_!_!_")});
+        self.login_success(|| {println!("------CHANGE STATE TO CFG!!!!------!!_!_!_!_!_!_")});
+        self.finish_configuration(||{println!("------CHANGE STATE TO PLAY!!!!------!!_!_!_!_!_!_")});
     }
 
     handle_stateful_event!(
