@@ -95,7 +95,7 @@ impl Client {
                 let packet_data_end = end_of_packet_pos as usize;
                 let packet_data = &cursor.get_ref()[packet_data_start..packet_data_end];
                 let mut packet_cursor = Cursor::new(packet_data);
-                let uncompressed_data = decode_packet(&mut packet_cursor, self.compression).unwrap(); // temp shit
+                let uncompressed_data = decode_packet(&mut packet_cursor, 256).unwrap(); // temp shit COMP_THOLD SHIT TEMP
                 let mut data_cursor = Cursor::new(&uncompressed_data);
                 let packet_id = VarInt::decode(&mut data_cursor).unwrap(); // temp shit?
                 let mut raw_data = Vec::new(); // shit temp

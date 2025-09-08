@@ -1,4 +1,4 @@
-use mc_client::{handle::types::Controllers, types::{Internal, Registry}, Client};
+use mc_client::{types::{Internal, Registry}, Client};
 
 #[tokio::main]
 async fn main(){
@@ -37,5 +37,5 @@ async fn main(){
     let mut client = cli.connect().await.unwrap();
 
     client.internal().bootstrap();
-
+    tokio::spawn(client.read());
 }
