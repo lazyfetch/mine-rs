@@ -1,7 +1,7 @@
 use std::io::Read;
-use mc_protocol::{entity::Entity, packets::{packet_ids_sb::LoginAcknowledged, types::types::{Angle, Boolean, Decode, DecodeError, Double, Float, Int, Long, PrefixedArray, Short, StringMC, VarInt, UUID}}, player::Player};
+use mc_protocol::{entity::Entity, packets::{packet_ids_sb::{AcknowledgeFinishConfiguration, LoginAcknowledged}, types::types::{Angle, Boolean, Decode, DecodeError, Double, Float, Int, Long, PrefixedArray, Short, StringMC, VarInt, UUID}}, player::Player};
 
-use crate::{packets::{serverbound::{self, LoginAcknowledgedData}, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{internal_storage::InternalStorage, DataBuilder, RemoveEvent, SpawnEvent, WithReply}, EntityStorage};
+use crate::{handle::handle, packets::{encode, serverbound::{self, AcknowledgeFinishConfigurationData, LoginAcknowledgedData}, types::{ApplyEvent, Parse, ProvideTargetKey}}, registries::{internal_storage::InternalStorage, DataBuilder, RemoveEvent, SpawnEvent, WithReply}, EntityStorage};
 use crate::State::Configure;
 
 // -- EntityMoveData --
@@ -299,16 +299,18 @@ impl Parse for LoginSuccessPropertyData {
 
 impl ApplyEvent<InternalStorage> for LoginSuccessData {
     fn apply(&mut self, event: &mut InternalStorage) {
-        // Change state,
+        // Change state, 100% thread safe, cuz its synchonous
         event.state = Configure;
-        
+        let sender = event.sender.clone();
         // send to channel package
-        let packet = LoginAcknowledgedData;
-        let payload = LoginAcknowledged::build(packet).unwrap(); // temp
-
+        let packet_data = LoginAcknowledgedData;
+        let mut payload = LoginAcknowledged::build(packet_data).unwrap(); // temp
+        let packet = encode::encode(&mut payload, 256).unwrap(); // absolutely shit
+        handle::Handle::send(sender, packet);
     }
 }
 
+// todo temp
 pub struct SetCompressionData {
     pub threshold: VarInt,
 }
@@ -323,11 +325,40 @@ impl Parse for FinishConfigurationData {
         Ok(FinishConfigurationData)
     }
 }
-impl WithReply for FinishConfigurationData {
-    type Reply = serverbound::AcknowledgeFinishConfigurationData;
-    
-    fn with_reply(&self) -> Self::Reply {
-        serverbound::AcknowledgeFinishConfigurationData
+
+impl ApplyEvent<InternalStorage> for FinishConfigurationData {
+    fn apply(&mut self, event: &mut InternalStorage) {
+        // 100% i hope
+        event.state = crate::State::Play;
+        let sender = event.sender.clone();
+        let packet_data = AcknowledgeFinishConfigurationData;
+        let mut payload = AcknowledgeFinishConfiguration::build(packet_data).unwrap(); // temp
+        let packet = encode::encode(&mut payload, 256).unwrap();
+        handle::Handle::send(sender, packet);
     }
 }
+
+pub struct KeepAliveConfigureData {
+    pub id: Long,
+}
+
+impl Parse for KeepAliveConfigureData {
+    fn parse<R: Read>(reader: &mut R) -> Result<Self, DecodeError> {
+        Ok(KeepAliveConfigureData { 
+            id: Long::decode(reader)?,
+        })
+    }
+}
+
+impl WithReply for KeepAliveConfigureData {
+    type Reply = serverbound::KeepAliveConfigureData;
+
+    fn with_reply(&self) -> Self::Reply {
+        serverbound::KeepAliveConfigureData {
+            id: self.id
+        }
+    }
+}
+
+
 // -- Configure stage end --

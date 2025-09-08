@@ -29,6 +29,15 @@ impl Handle {
         
         println!("[Handle]: channel closed");
     }
+
+    // for packet, not payload or data, only packet 
+    pub fn send(sender: mpsc::Sender<Packet>, packet: Packet) {
+        tokio::spawn(async move {
+            if let Err(e) = sender.send(packet).await {
+                eprintln!("Failed, {}", e);
+            }
+        });
+    }
 }
 
 impl Controllers for Handle {

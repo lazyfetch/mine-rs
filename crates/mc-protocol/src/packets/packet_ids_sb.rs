@@ -59,6 +59,14 @@ pub enum ConfigureServerboundPacketId {
     CustomClickAction = 0x08,
 }
 
+pub struct KeepAliveConfigure;
+
+impl Packet for KeepAliveConfigure {
+    type Id = ConfigureServerboundPacketId;
+
+    const ID: Self::Id = ConfigureServerboundPacketId::KeepAlive;
+}
+
 pub struct AcknowledgeFinishConfiguration;
 
 impl Packet for AcknowledgeFinishConfiguration {

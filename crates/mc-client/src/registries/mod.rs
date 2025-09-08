@@ -9,3 +9,5 @@ pub mod player_storage;
 
 pub use super::packets::types::*;
 pub mod types;
+
+pub use super::handle::handle::Handle;

@@ -1,4 +1,4 @@
-use mc_protocol::packets::{packet_ids_sb::{AcknowledgeFinishConfiguration, Handshake, KeepAlivePlay, Login, LoginAcknowledged}, types::types::{Encode, EncodeError, Long, StringMC, UShort, VarInt}, Packet};
+use mc_protocol::packets::{packet_ids_sb::{AcknowledgeFinishConfiguration, Handshake, KeepAliveConfigure, KeepAlivePlay, Login, LoginAcknowledged}, types::types::{Encode, EncodeError, Long, StringMC, UShort, VarInt}, Packet};
 
 use crate::{registries::{DataBuilder}};
 
@@ -74,6 +74,21 @@ impl DataBuilder for KeepAlivePlay {
 // -- KeepAliveData end --
 
 // -- Configuration stage --
+
+pub struct KeepAliveConfigureData {
+    pub id: Long,
+}
+
+impl DataBuilder for KeepAliveConfigure {
+    type Data = KeepAliveConfigureData;
+
+    fn build(data: Self::Data) -> Result<Vec<u8>, EncodeError> {
+        let mut buf: Vec<u8> = Vec::new();
+        VarInt::from(Self::ID).encode(&mut buf)?;
+        data.id.encode(&mut buf)?;
+        Ok(buf)
+    }
+}
 
 pub struct AcknowledgeFinishConfigurationData;
 

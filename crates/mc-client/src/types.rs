@@ -1,8 +1,13 @@
 use std::collections::HashMap;
-use std::any::{Any, TypeId};
-use std::sync::Arc;
-use mc_protocol::packets::packet_ids_cb::{ConfigureClientboundPacketId, LoginClientboundPacketId, PlayClientboundPacketId};
-use std::sync::Mutex;
+use std::any::{
+    Any, 
+    TypeId
+};
+use mc_protocol::packets::packet_ids_cb::{
+    ConfigureClientboundPacketId, 
+    LoginClientboundPacketId, 
+    PlayClientboundPacketId
+};
 
 
 use crate::registries::internal_handler_registry::InternalHandlerRegistry;

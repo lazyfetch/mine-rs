@@ -72,10 +72,7 @@ macro_rules! handle_spawn_event {
         }
     };
 }
-
-// todo, make registries work
-// its need for login -> configure stages,
-// but for chunk need to use absolutely another system
+// shit shit shit shit shit temp
 #[macro_export]
 macro_rules! handle_with_reply_event {
     (
@@ -100,9 +97,10 @@ macro_rules! handle_with_reply_event {
                 let packet_data = <$packet_data_type>::parse(&mut reader).unwrap(); // temp
                 let reply_data = packet_data.with_reply();
                 let sender_clone = sender.clone();
-                if let Ok(reply_bytes) = <$reply_packet_builder>::build(reply_data) {
+                if let Ok(mut reply_bytes) = <$reply_packet_builder>::build(reply_data) {
+                    let packet = encode::encode(&mut reply_bytes, 256).unwrap(); // absolute shit hardcode, for test temp
                     tokio::spawn(async move {
-                        if let Err(e) = sender_clone.send(reply_bytes).await {
+                    if let Err(e) = sender_clone.send(packet).await {
                             eprintln!("Failed, {}", e);
                         }
                     });
